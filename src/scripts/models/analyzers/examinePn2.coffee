@@ -46,11 +46,15 @@ class @ExaminePn2 extends @Analyzer
 	analyze: (inputOptions, outputElements, currentNet, apt, converterService, netStorageService, formDialogService) =>
 		outputElements.splice(0) while outputElements.length > 0 # clear outputElements
 		tests = []
+		
+		#execute tests
 		tests.push {name: "Weighted", result: ExaminePn2.isWeighted(currentNet)}
 		tests.push {name: "Choice Free", result: @isChoiceFree(currentNet)}
 		tests.push {name: "Marked Graph", result: @isMarkedGraph(currentNet)}
 		tests.push {name: "Join Free", result: @isJoinFree(currentNet)}
 		tests.push {name: "State Machine", result: @isStateMachine(currentNet)}
+		
+		# print tests
 		for test in tests
 			result = "Yes" if test.result is true
 			result = "No" if test.result is false
