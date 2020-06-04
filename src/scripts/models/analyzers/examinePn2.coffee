@@ -28,7 +28,19 @@ class @ExaminePn2 extends @Analyzer
 			return false if net.getPostset(node).length > 1
 			return false if net.getPreset(node).length >1
 		return true
-			
+		
+	isJoinFree: (net) ->
+		return false if not ExaminePn2.isWeighted(net)
+		for node in net.nodes when node.type == "transition"
+			return false if net.getPreset(node).length > 1
+		return true
+		
+	isStateMachine: (net) ->
+		return false if not ExaminePn2.isWeighted(net)
+		for node in net.nodes when node.type == "transition"
+			return false if net.getPostset(node).length > 1
+			return false if net.getPreset(node).length >1
+		return true
 		
 	# connect to angular-apt
 	analyze: (inputOptions, outputElements, currentNet, apt, converterService, netStorageService, formDialogService) =>
@@ -37,6 +49,8 @@ class @ExaminePn2 extends @Analyzer
 		tests.push {name: "Weighted", result: ExaminePn2.isWeighted(currentNet)}
 		tests.push {name: "Choice Free", result: @isChoiceFree(currentNet)}
 		tests.push {name: "Marked Graph", result: @isMarkedGraph(currentNet)}
+		tests.push {name: "Join Free", result: @isJoinFree(currentNet)}
+		tests.push {name: "State Machine", result: @isStateMachine(currentNet)}
 		for test in tests
 			result = "Yes" if test.result is true
 			result = "No" if test.result is false
