@@ -21,6 +21,7 @@ class @PetriNet extends @Net
 		# Setup for the petri nets analyzers in the right order
 		@setAnalyzers([
 			new ExaminePn()
+			new ExaminePn2()
 			new CoverabilityAnalyzer()
 		])
 
