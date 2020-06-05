@@ -26,26 +26,22 @@ class @ExaminePn2 extends @Analyzer
 		return true
 
 	isChoiceFree: (net) ->
-		return false if not ExaminePn2.isWeighted(net)
 		for node in net.nodes when node.type == "place"
 			return false if net.getPostset(node).length > 1
 		return true
 		
 	isMarkedGraph: (net) ->
-		return false if not ExaminePn2.isWeighted(net)
 		for node in net.nodes when node.type == "place"
 			return false if net.getPostset(node).length > 1
 			return false if net.getPreset(node).length >1
 		return true
 	
 	isJoinFree: (net) ->
-		return false if not ExaminePn2.isWeighted(net)
 		for node in net.nodes when node.type == "transition"
 			return false if net.getPreset(node).length > 1
 		return true
 	
 	isStateMachine: (net) ->
-		return false if not ExaminePn2.isWeighted(net)
 		for node in net.nodes when node.type == "transition"
 			return false if net.getPostset(node).length > 1
 			return false if net.getPreset(node).length >1
