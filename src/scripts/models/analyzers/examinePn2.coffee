@@ -21,7 +21,7 @@ class @ExaminePn2 extends @Analyzer
 		return false for e in l1 when (e not in l2)
 		return true
 	
-	@isWeighted: (net) ->
+	@isUnitWeighted: (net) ->
 		return false for edge in net.edges when (edge.left > 1 or edge.right > 1)
 		return true
 
@@ -83,7 +83,7 @@ class @ExaminePn2 extends @Analyzer
 		tests = []
 		
 		#execute tests
-		tests.push {name: "Weighted", result: ExaminePn2.isWeighted(currentNet)}
+		tests.push {name: "Unit Weighted", result: ExaminePn2.isUnitWeighted(currentNet)}
 		tests.push {name: "Choice Free", result: @isChoiceFree(currentNet)}
 		tests.push {name: "Marked Graph", result: @isMarkedGraph(currentNet)}
 		tests.push {name: "Join Free", result: @isJoinFree(currentNet)}
