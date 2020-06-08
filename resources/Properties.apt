@@ -1,0 +1,38 @@
+.name "Properties"
+.type PPN
+
+.places
+T
+Circuits
+S
+FA
+Choice-Free
+Join-Free
+Free-Choice
+Asymmetric-Choice
+Equal-Conflict
+Weighted-Petri-Nets
+
+.transitions
+classes_1
+classes_2
+classes_3
+classes_5
+classes_6
+classes_7
+classes_4
+classes_8
+classes_9
+
+.flows
+classes_1: {1*Circuits} -> {1*Circuits, 1*S, 1*T}
+classes_2: {1*T} -> {1*T, 1*Choice-Free}
+classes_3: {1*S} -> {1*S, 1*Join-Free}
+classes_5: {1*Choice-Free} -> {1*Choice-Free, 1*Equal-Conflict}
+classes_6: {1*Equal-Conflict} -> {1*Equal-Conflict, 1*Free-Choice}
+classes_7: {1*Join-Free} -> {1*Join-Free, 1*Free-Choice}
+classes_4: {1*Choice-Free, 1*Join-Free} -> {1*Choice-Free, 1*FA, 1*Join-Free}
+classes_8: {1*Free-Choice} -> {1*Free-Choice, 1*Asymmetric-Choice}
+classes_9: {1*Asymmetric-Choice} -> {1*Asymmetric-Choice, 1*Weighted-Petri-Nets}
+
+.initial_marking {}

@@ -11,6 +11,7 @@ class Converter extends Service
 			switch netData.type
 				when "lts" then return new TransitionSystem(netData)
 				when "pn" then return new PetriNet(netData)
+				when "ppn" then return new PropertyPetriNet(netData)
 				else return new TransitionSystem(netData)
 
 		@getEdgeFromData = (edgeData) ->
@@ -181,6 +182,94 @@ class Converter extends Service
 										target: target
 									net.addEdge(edge)
 
+				else if @isPartOfString("PPN", @getAptBlock("type", aptCode))
+					net = new PropertyPetriNet({name: name})
+
+					# add places
+					places = @getAptBlockRows("places", aptCode)
+					for placeLabel in places
+						place = new Place({label: placeLabel})
+						net.addPlace(place)
+
+					# add transitions
+					transitionLabels = new Map()
+					transitions = @getAptBlockRows("transitions", aptCode)
+					for transitionRow in transitions
+						transitionId = transitionRow.split(" ")[0].split("[")[0]
+
+						# labels are saved and applied later
+						if @isPartOfString("label=", transitionRow)
+							transitionLabels.set(transitionId, transitionRow.split("label=\"")[1].split("\"")[0])
+						transition = new Transition({label: transitionId})
+						net.addTransition(transition)
+
+					# add edges
+					flows = @getAptBlockRows("flows", aptCode)
+					for flow in flows
+						transition = net.getNodeByText(flow.split(": {")[0])
+						preset = flow.split(": {")[1].split("}")[0].replace(", ", ",").split(",")
+						postset = flow.split("-> {")[1].split("}")[0].replace(", ", ",").split(",")
+
+						# only create edges if they not already exist
+						for edge in preset
+							if edge isnt ""
+								existingEdge = false
+								if @isPartOfString("*", edge)
+									weight = edge.split("*")[0]
+									place = net.getNodeByText(edge.split("*")[1])
+								else
+									weight = 1
+									place = net.getNodeByText(edge)
+								for edge in net.edges when edge.source is place and edge.target is transition
+									existingEdge = edge
+								if existingEdge
+									existingEdge.right = weight
+								else
+									for edge in net.edges when edge.source is transition and edge.target is place
+										existingEdge = edge
+								if existingEdge
+									existingEdge.left = weight
+								else
+									edge = new PnEdge({source: place, target: transition, right: weight})
+									net.addEdge(edge)
+
+						for edge in postset
+							if edge isnt ""
+								existingEdge = false
+								if @isPartOfString("*", edge)
+									weight = edge.split("*")[0]
+									place = net.getNodeByText(edge.split("*")[1])
+								else
+									weight = 1
+									place = net.getNodeByText(edge)
+								for edge in net.edges when edge.source is transition and edge.target is place
+									existingEdge = edge
+								if existingEdge
+									existingEdge.right = weight
+								else
+									for edge in net.edges when edge.source is place and edge.target is transition
+										existingEdge = edge
+								if existingEdge
+									existingEdge.left = weight
+								else
+									edge = new PnEdge({source: transition, target: place, right: weight})
+									net.addEdge(edge)
+
+					# add initial tokens
+					markings = @getAptBlock("initial_marking", aptCode).split("{")[1].split("}")[0].split(", ")
+					for marking in markings
+						if @isPartOfString("*", marking)
+							number = marking.split("*")[0]
+							place = net.getNodeByText(marking.split("*")[1])
+						else
+							number = 1
+							place = net.getNodeByText(marking)
+						place.tokens = number
+
+					# rename transitions from id's to labels
+					transitionLabels.forEach (label, transitionId) ->
+						net.getNodeByText(transitionId).label = label
+						
 				else if @isPartOfString("PN", @getAptBlock("type", aptCode))
 					net = new PetriNet({name: name})
 
