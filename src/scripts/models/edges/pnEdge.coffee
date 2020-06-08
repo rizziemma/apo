@@ -8,7 +8,9 @@ class @PnEdge extends @Edge
 		super(options)
 
 	getText: ->
-		if @left >= 1 and @right >= 1
+		if @left == 1 and @right == 1
+			return ""
+		else if @left >= 1 and @right >= 1
 			return "← #{@left} | #{@right} →"
 		else if @left >= 2
 			return @left
