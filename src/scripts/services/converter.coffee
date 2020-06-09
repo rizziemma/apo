@@ -11,7 +11,7 @@ class Converter extends Service
 			switch netData.type
 				when "lts" then return new TransitionSystem(netData)
 				when "pn" then return new PetriNet(netData)
-				when "ppn" then return new PropertyPetriNet(netData)
+				when "ppn" then return new PropertiesPetriNet(netData)
 				else return new TransitionSystem(netData)
 
 		@getEdgeFromData = (edgeData) ->
@@ -183,7 +183,7 @@ class Converter extends Service
 									net.addEdge(edge)
 
 				else if @isPartOfString("PPN", @getAptBlock("type", aptCode))
-					net = new PropertyPetriNet({name: name})
+					net = new PropertiesPetriNet({name: name})
 
 					# add places
 					places = @getAptBlockRows("places", aptCode)

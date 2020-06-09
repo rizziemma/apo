@@ -6,7 +6,7 @@
       	<h3>{{ net.name }}</h3>
 			<p ng-if="net.type == 'pn'">petri net</p>
 			<p ng-if="net.type == 'lts'">transition system</p>
-			<p ng-if="net.type == 'ppn'">property petri net</p>
+			<p ng-if="net.type == 'ppn'">properties petri net</p>
 		</div>
       <ng-md-icon class="md-secondary" ng-click="sn.deleteNet(net, $event)" icon="delete" size="22" aria-label="Delete net"></ng-md-icon>
    </md-list-item>

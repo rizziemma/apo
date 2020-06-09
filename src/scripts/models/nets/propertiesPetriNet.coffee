@@ -2,7 +2,7 @@
 	This is the class for petri nets.
 ###
 
-class @PropertyPetriNet extends @PetriNet
+class @PropertiesPetriNet extends @PetriNet
 	constructor: (netObject) ->
 		super(netObject)
 		@type = "ppn"
