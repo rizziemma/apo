@@ -1,0 +1,11 @@
+{
+	"data": [
+		{
+			"name": "classes",
+			"ref": "See part 2.4.7 of http://thomas-hujsa.fr/images/PDF/Thesis-Hujsa.pdf"
+		},
+		{
+			"name": "Join-Free",
+			"ref": "See part 2.4.5 of http://thomas-hujsa.fr/images/PDF/Thesis-Hujsa.pdf"
+		}]
+}

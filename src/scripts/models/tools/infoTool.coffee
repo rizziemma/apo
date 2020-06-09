@@ -10,9 +10,10 @@ class @InfoTool extends @Tool
 		@icon = "search"
 		
 		#read properties
-		@prop = [{name:"classes", ref:"See part 2.4.7 of http://thomas-hujsa.fr/images/PDF/Thesis-Hujsa.pdf"}
-				{name:"Join-Free", ref:"See part 2.4.5 of http://thomas-hujsa.fr/images/PDF/Thesis-Hujsa.pdf"}
-		]
+		@prop = []
+		InfoTool.loadProperties(this)
+		
+		
 		
 	@isPartOfString = (searchFor, searchIn) ->
 		searchIn.replace(searchFor, "") isnt searchIn
@@ -27,5 +28,17 @@ class @InfoTool extends @Tool
 				text: if text == "" then "Not defined yet." else text
 				cancel: false
 			})
+		
+	@loadProperties = (tool) ->
+		req = new XMLHttpRequest()
+		req.addEventListener 'readystatechange', ->
+			if req.readyState is 4                        # ReadyState Complete
+				successResultCodes = [200, 304]
+				if req.status in successResultCodes
+					response = eval '(' + req.responseText + ')'
+					tool.prop = response.data
+				else
+					console.log 'Error loading data...'
 
-	
+		req.open 'GET', '/resources/properties_ref.json', true
+		req.send()

@@ -23,6 +23,7 @@ class @PetriNet extends @Net
 			new ExaminePn()
 			new ExaminePn2()
 			new CoverabilityAnalyzer()
+			new PropertiesNetAnalyzer()
 		])
 
 	# Add a new transition node

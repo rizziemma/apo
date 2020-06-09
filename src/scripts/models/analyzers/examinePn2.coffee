@@ -76,23 +76,26 @@ class @ExaminePn2 extends @Analyzer
 				if inter.length > 0
 					return false for p in inter when (net.getEdgeWeight(p, t1) != net.getEdgeWeight(p, t2))
 		return true
+	
+	runTests: (net) ->
+		tests = []
+		tests.push {name: "Unit-Weighted", result: ExaminePn2.isUnitWeighted(net)}
+		tests.push {name: "Choice-Free", result: @isChoiceFree(net)}
+		tests.push {name: "Marked-Graph", result: @isMarkedGraph(net)}
+		tests.push {name: "Join-Free", result: @isJoinFree(net)}
+		tests.push {name: "State-Machine", result: @isStateMachine(net)}
+		tests.push {name: "Asymmetric-Choice", result: @isAsymmetricChoice(net)}
+		tests.push {name: "Free-Choice", result: @isFreeChoice(net)}
+		tests.push {name: "Equal-Conflict", result: @isEqualConflict(net)}
+		return tests
 		
+	
 	# connect to angular-apt
 	analyze: (inputOptions, outputElements, currentNet, apt, converterService, netStorageService, formDialogService) =>
 		outputElements.splice(0) while outputElements.length > 0 # clear outputElements
-		tests = []
 		
-		#execute tests
-		tests.push {name: "Unit Weighted", result: ExaminePn2.isUnitWeighted(currentNet)}
-		tests.push {name: "Choice Free", result: @isChoiceFree(currentNet)}
-		tests.push {name: "Marked Graph", result: @isMarkedGraph(currentNet)}
-		tests.push {name: "Join Free", result: @isJoinFree(currentNet)}
-		tests.push {name: "State Machine", result: @isStateMachine(currentNet)}
-		tests.push {name: "Asymmetric Choice", result: @isAsymmetricChoice(currentNet)}
-		tests.push {name: "Free Choice", result: @isFreeChoice(currentNet)}
-		tests.push {name: "Equal Conflict", result: @isEqualConflict(currentNet)}
 		# print tests
-		for test in tests
+		for test in @runTests(currentNet)
 			result = "Yes" if test.result is true
 			result = "No" if test.result is false
 			outputElements.push(
