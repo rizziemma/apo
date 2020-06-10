@@ -2,37 +2,26 @@
 .type PPN
 
 .places
-Marked-Graph
-Circuits
+Unit-Weighted
 State-Machine
-Fork-Attribution
-Choice-Free
+Marked-Graph
 Join-Free
-Free-Choice
-Asymmetric-Choice
+Choice-Free
+Fork-Attribution
 Equal-Conflict
-Weighted-PN
+Free-Choice
+Restricted-Free-Choice
+Asymmetric-Choice
+Pure
+Nonpure-Only-Simple-Side-Conditions
+Homogeneous
+Isolated-Elements
+Well-Connected
+Forward-Conflict-Free
+Backward-Conflict-Free
 
 .transitions
-classes_1
-classes_2
-classes_3
-classes_5
-classes_6
-classes_7
-classes_4
-classes_8
-classes_9
+Classes_1
 
 .flows
-classes_1: {1*Circuits} -> {1*Circuits, 1*State-Machine, 1*Marked-Graph}
-classes_2: {1*Marked-Graph} -> {1*Marked-Graph, 1*Choice-Free}
-classes_3: {1*State-Machine} -> {1*State-Machine, 1*Join-Free}
-classes_5: {1*Choice-Free} -> {1*Choice-Free, 1*Equal-Conflict}
-classes_6: {1*Equal-Conflict} -> {1*Equal-Conflict, 1*Free-Choice}
-classes_7: {1*Join-Free} -> {1*Join-Free, 1*Free-Choice}
-classes_4: {1*Choice-Free, 1*Join-Free} -> {1*Choice-Free, 1*Join-Free, 1*Fork-Attribution}
-classes_8: {1*Free-Choice} -> {1*Free-Choice, 1*Asymmetric-Choice}
-classes_9: {1*Asymmetric-Choice} -> {1*Asymmetric-Choice, 1*Weighted-PN}
-
-
+Classes_1: {1*Join-Free, 1*Choice-Free} -> {1*Join-Free, 1*Choice-Free, 1*Fork-Attribution}

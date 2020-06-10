@@ -273,6 +273,7 @@ module.exports = (grunt) ->
 					'src/scripts/**/*.js'
 					'src/styles/**/*.css'
 					'src/**/*.html'
+					'src/resources/*'
 				]
 				tasks: [
 					'copy:app'
