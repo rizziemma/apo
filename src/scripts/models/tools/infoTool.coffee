@@ -21,16 +21,14 @@ class @InfoTool extends @Tool
 	mouseDownOnNode: (net, mouseDownNode, dragLine, formDialogService, restart) ->
 		if mouseDownNode.type is "place" or mouseDownNode.type is "transition"
 			for p in @prop when InfoTool.isPartOfString(p.name, mouseDownNode.label)
-				text = "Definition : \n" + p.def + "\n"
-				if p.aka isnt ""
-					text += "Sometimes referenced as : " + p.aka + "\n"
-				if p.ref isnt ""
-					text += "Reference : \n" + p.ref
-			formDialogService.runDialog({
-				title: "More about "+ p.name
-				text: text
-				cancel: false
-			})
+				console.log(p.name)
+				text = {def: p.def, aka: p.aka, ref: p.ref}
+				formDialogService.runDialog({
+					title: "More about "+ p.name
+					text: text
+					cancel: false
+					defaultText: false
+				})
 		
 	@loadProperties = (tool) ->
 		req = new XMLHttpRequest()

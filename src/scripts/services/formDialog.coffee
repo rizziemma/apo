@@ -19,8 +19,9 @@ class FormDialog extends Service
 				onComplete = null
 				staticError = -> false
 				net = null
+				defaultText = true
 			} = options
-
+			console.log text
 			# Use $mdDialog to show Dialog
 			$mdDialog.show
 				targetEvent: event
@@ -33,6 +34,7 @@ class FormDialog extends Service
 				locals:
 					title: title
 					text: text
+					defaultText: defaultText
 					formElements: formElements
 					outputElements: outputElements
 					onComplete: onComplete
@@ -40,7 +42,7 @@ class FormDialog extends Service
 					net: net
 					ok: ok
 					cancel: cancel
-
+					
 		# Hide the dialog
 		@close = -> $mdDialog.hide(null)
 

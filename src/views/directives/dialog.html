@@ -11,7 +11,16 @@
 	<md-dialog-content>
 		<div class="md-dialog-content">
 			<form name="formDialog" ng-submit="dialog.complete()">
-				<p class="dialog-description">{{ dialog.text }}</p>
+				<div class="dialog-description">
+					<div ng-if="dialog.defaultText">
+						{{dialog.text}}
+					</div>
+					<div ng-if="!dialog.defaultText">
+						<div ng-if="dialog.text.def!=''"><h3>Definition :</h3>{{dialog.text.def}}</div>
+						<div ng-if="dialog.text.aka!=''"><h3>Sometime referred to as :</h3>{{dialog.text.aka}}</div>
+						<div ng-if="dialog.text.ref!=''"><h3>Reference :</h3>{{dialog.text.ref}}</div>
+					</div>
+				</div>
 				<div layout="row" layout-wrap>
 					<md-input-container
 						class="md-block"
