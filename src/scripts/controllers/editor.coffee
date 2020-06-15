@@ -73,14 +73,14 @@ class Editor extends Controller
 					edge.getPath()
 				nodes.attr 'transform', (d) ->
 					'translate(' + d.x + ',' + d.y + ')'
-
+				
 			# update graph layout (called when needed)
 			restart = ->
 				edges = edges.data(net.edges)
 
 				# update existing links
-				edges.style('marker-start', (edge) -> if edge.left > 0 then 'url(#startArrow)' else '')
-				edges.style('marker-end', (edge) -> if edge.right > 0 then 'url(#endArrow)' else '')
+				edges.style('marker-start', (edge) -> edge = new Edge(edge); edge.markerStart())
+				edges.style('marker-end', (edge) -> edge = new Edge(edge); edge.markerEnd())
 
 				# update existing edge labels
 				d3.selectAll('.edgeLabel .text').text((edge) -> converterService.getEdgeFromData(edge).getText())
@@ -93,8 +93,8 @@ class Editor extends Controller
 
 				# add new egdes
 				edges.enter().append('svg:path').attr('class', 'link')
-					.style('marker-start', (edge) -> if edge.left > 0 then 'url(#startArrow)' else '')
-					.style('marker-end', (edge) -> if edge.right > 0 then 'url(#endArrow)' else '')
+					.style('marker-start', (edge) -> edge = new Edge(edge); edge.markerStart())
+					.style('marker-end', (edge) -> edge = new Edge(edge); edge.markerEnd())
 					.attr('id', (edge) -> edge.id)
 					.classed('edge', true)
 					.on 'mousedown', (edge) ->

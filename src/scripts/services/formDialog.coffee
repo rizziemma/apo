@@ -21,7 +21,6 @@ class FormDialog extends Service
 				net = null
 				defaultText = true
 			} = options
-			console.log text
 			# Use $mdDialog to show Dialog
 			$mdDialog.show
 				targetEvent: event

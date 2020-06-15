@@ -216,6 +216,7 @@ class Converter extends Service
 								existingEdge = false
 								if @isPartOfString("*", edge)
 									weight = edge.split("*")[0]
+									weight = if @isPartOfString("I", weight) then "I" else parseInt(weight, 10)
 									place = net.getNodeByText(edge.split("*")[1])
 								else
 									weight = 1
@@ -238,6 +239,7 @@ class Converter extends Service
 								existingEdge = false
 								if @isPartOfString("*", edge)
 									weight = edge.split("*")[0]
+									weight = if @isPartOfString("I", weight) then "I" else parseInt(weight, 10)
 									place = net.getNodeByText(edge.split("*")[1])
 								else
 									weight = 1

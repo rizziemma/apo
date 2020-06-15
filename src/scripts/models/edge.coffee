@@ -15,11 +15,31 @@ class @Edge
 		dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
 		normX = deltaX / dist
 		normY = deltaY / dist
-		sourcePadding = if @left >= 1 then @source.radius + 5 else @source.radius
-		targetPadding = if @right >= 1 then @target.radius + 5 else @target.radius
+		sourcePadding = if @markerStart() is '' then @source.radius else @source.radius + 5
+		targetPadding = if @markerEnd() is '' then @target.radius else @target.radius + 5
 
 		sourceX = @source.x + sourcePadding * normX
 		sourceY = @source.y + sourcePadding * normY
 		targetX = @target.x - targetPadding * normX
 		targetY = @target.y - targetPadding * normY
 		'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY
+		
+	markerStart: ->
+		if @left is "I" and @source.type is "transition"
+			return 'url(#emptyCircle)'
+		if @left is 1 and @right is 1
+			return 'url(#plainCircle)' if @source.type is "transition"
+			return ''
+		if @left > 0
+			return 'url(#startArrow)'
+		return ''
+
+	markerEnd: ->
+		if @right is "I" and @target.type is "transition"
+			return 'url(#emptyCircle)'
+		if @left is 1 and @right is 1
+			return 'url(#plainCircle)' if @target.type is "transition"
+			return ''
+		if @right > 0
+			return 'url(#endArrow)'
+		return ''
