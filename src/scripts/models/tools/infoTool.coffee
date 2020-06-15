@@ -20,7 +20,7 @@ class @InfoTool extends @Tool
 
 	mouseDownOnNode: (net, mouseDownNode, dragLine, formDialogService, restart) ->
 		if mouseDownNode.type is "place" or mouseDownNode.type is "transition"
-			for p in @prop when InfoTool.isPartOfString(p.name, mouseDownNode.label)
+			for p in @prop when p.name is mouseDownNode.label
 				text = {def: p.def, aka: p.aka, ref: p.ref}
 				formDialogService.runDialog({
 					title: "More about "+ p.name

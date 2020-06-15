@@ -17,13 +17,30 @@ Nonpure-Only-Simple-Side-Conditions
 Homogeneous
 Isolated-Elements
 Well-Connected
-Forward-Conflict-Free
-Backward-Conflict-Free
+Circuit
 
 .transitions
 Classes_1
-
+Classes_2
+Classes_3
+Classes_4
+Classes_5
+Classes_6
+Classes_7
+Classes_8
+Classes_9
+Classes_10
+Classes_11
 
 .flows
-Classes_1: {1*Join-Free, 1*Choice-Free, I*Fork-Attribution} -> {1*Join-Free, 1*Choice-Free, 1*Fork-Attribution}
-: {} -> {}
+Classes_1: {Circuit, I*State-Machine} -> {Circuit, State-Machine}
+Classes_2: {Circuit, I*Marked-Graph} -> {Circuit, Marked-Graph}
+Classes_3: {1*Marked-Graph, I*Choice-Free} -> {Marked-Graph, Choice-Free}
+Classes_4: {Choice-Free, I*Equal-Conflict} -> {Choice-Free, Equal-Conflict}
+Classes_5: {State-Machine, I*Join-Free} -> {State-Machine, Join-Free}
+Classes_6: {Join-Free, Choice-Free, I*Fork-Attribution} -> {Join-Free, Choice-Free, Fork-Attribution}
+Classes_7: {Fork-Attribution, I*Join-Free} -> {Fork-Attribution, Join-Free}
+Classes_8: {Fork-Attribution, I*Choice-Free} -> {Fork-Attribution, Choice-Free}
+Classes_9: {Equal-Conflict, I*Free-Choice} -> {Equal-Conflict, Free-Choice}
+Classes_10: {Join-Free, I*Free-Choice} -> {Join-Free, Free-Choice}
+Classes_11: {Free-Choice, I*Asymmetric-Choice} -> {Free-Choice, Asymmetric-Choice}
