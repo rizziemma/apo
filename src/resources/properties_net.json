@@ -38,7 +38,7 @@ Classes_2: {Circuit, I*Marked-Graph} -> {Circuit, Marked-Graph}
 Classes_3: {1*Marked-Graph, I*Choice-Free} -> {Marked-Graph, Choice-Free}
 Classes_4: {Choice-Free, I*Equal-Conflict} -> {Choice-Free, Equal-Conflict}
 Classes_5: {State-Machine, I*Join-Free} -> {State-Machine, Join-Free}
-Classes_6: {Join-Free, Choice-Free, I*Fork-Attribution} -> {Join-Free, Choice-Free, Fork-Attribution}
+Classes_6: {Join-Free, Choice-Free, I*Fork-Attribution} -> {Join-Free,Choice-Free,Fork-Attribution}
 Classes_7: {Fork-Attribution, I*Join-Free} -> {Fork-Attribution, Join-Free}
 Classes_8: {Fork-Attribution, I*Choice-Free} -> {Fork-Attribution, Choice-Free}
 Classes_9: {Equal-Conflict, I*Free-Choice} -> {Equal-Conflict, Free-Choice}

@@ -1,0 +1,23 @@
+INSTALLER APO
+
+-> n (https://github.com/tj/n) pour gérer les versions de NodeJS
+$ git clone https://github.com/tj/n
+$ cd n && sudo make install
+
+-> node.js + npm
+$ sudo n latest
+
+-> update npm
+$ sudo npm install -g npm@latest
+
+-> grunt
+$ sudo npm install -g grunt-cli
+
+-> apo
+
+$ git clone https://github.com/stromhalm/apo.git
+$ cd apo
+$ npm install
+
+-> launch
+$ grunt
