@@ -18,5 +18,5 @@ class @Place extends @Node
 	getTokenLabel: ->
 
 		return "" if @tokens is 0
-		return "●" if @tokens is 1
+		return "●" if @tokens is 1 or @tokens is "1"
 		return @tokens
