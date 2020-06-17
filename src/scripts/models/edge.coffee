@@ -22,12 +22,14 @@ class @Edge
 		sourceY = @source.y + sourcePadding * normY
 		targetX = @target.x - targetPadding * normX
 		targetY = @target.y - targetPadding * normY
-		'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY
+		middleX = (sourceX + targetX) / 2
+		middleY = (sourceY + targetY) / 2
+		'M' + sourceX + ',' + sourceY + 'L' + middleX + ',' + middleY + 'L' + targetX + ',' + targetY
 		
 	markerStart: ->
 		if @leftType is "inhibitor" and @source.type is "transition"
 			return 'url(#emptyCircle)'
-		if @left is 1 and @right is 1
+		if @left is 1 and @right is 1 and @leftType is "normal" and @rightType is "normal"
 			return 'url(#plainCircle)' if @source.type is "transition"
 			return ''
 		if @left > 0
@@ -37,9 +39,18 @@ class @Edge
 	markerEnd: ->
 		if @rightType is "inhibitor" and @target.type is "transition"
 			return 'url(#emptyCircle)'
-		if @left is 1 and @right is 1
+		if @left is 1 and @right is 1 and @leftType is "normal" and @rightType is "normal"
 			return 'url(#plainCircle)' if @target.type is "transition"
 			return ''
 		if @right > 0
 			return 'url(#endArrow)'
+		return ''
+	
+	markerMid: (type) ->
+		if type is "ppn"
+			if @right is 1 and @left is 1 and @leftType is "normal" and @rightType is "normal"
+				if @target.type is "transition"
+					return 'url(#endArrow)'
+				else
+					return 'url(#startArrow)'
 		return ''

@@ -96,7 +96,7 @@ class Editor extends Controller
 				# update existing links
 				edges.style('marker-start', (edge) -> edge = new Edge(edge); edge.markerStart())
 				edges.style('marker-end', (edge) -> edge = new Edge(edge); edge.markerEnd())
-
+				edges.style('marker-mid', (edge) -> edge = new Edge(edge); edge.markerMid(net.type))
 				# update existing edge labels
 				d3.selectAll('.edgeLabel .text').text((edge) -> converterService.getEdgeFromData(edge).getText())
 
@@ -110,6 +110,7 @@ class Editor extends Controller
 				edges.enter().append('svg:path').attr('class', 'link')
 					.style('marker-start', (edge) -> edge = new Edge(edge); edge.markerStart())
 					.style('marker-end', (edge) -> edge = new Edge(edge); edge.markerEnd())
+					.style('marker-mid', (edge) -> edge = new Edge(edge); edge.markerMid(net.type))
 					.attr('id', (edge) -> edge.id)
 					.classed('edge', true)
 					.on 'mousedown', (edge) ->

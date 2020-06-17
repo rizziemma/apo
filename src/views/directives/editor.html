@@ -1,5 +1,5 @@
 <div flex ng-class="['editor-layout', net.activeTool]">
-	<md-button class="md-primary" ng-click="resetZoom()" style="position: absolute; right:0; bottom: 0;z-index: 10;">
+	<md-button ng-if="net.activeTool == 'Zoom'" class="md-primary" ng-click="resetZoom()" style="position: absolute; right:0; bottom: 0;z-index: 10;">
 		reset zoom
 	</md-button>
 	<topbar></topbar>

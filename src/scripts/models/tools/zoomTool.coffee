@@ -7,5 +7,5 @@ class @ZoomTool extends @Tool
 		super()
 		@name = "Zoom"
 		@icon = "search"
-		@description = "Zoom in and out, drag the graph"
+		@description = "Zoom in and out, move the graph"
 
