@@ -40,6 +40,7 @@ class AboutController extends Controller
 
 		@pn = new PetriNet("PetriNet")
 		@lts = new TransitionSystem("TransitionSystem")
+		@ppn = new PropertiesPetriNet("PropertiesPetriNet")
 		@netType = "pn" # Set default list
 
 		@close = -> $mdDialog.hide()

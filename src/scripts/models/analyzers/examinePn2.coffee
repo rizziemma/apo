@@ -21,7 +21,11 @@ class @ExaminePn2 extends @Analyzer
 		return false for e in l1 when (e not in l2)
 		return true
 	
-	@isUnitWeighted: (net) ->
+	isWeightedPetriNet: (net) ->
+		return false for edge in net.edges when (edge.leftType isnt "normal" or edge.rightType isnt "normal")
+		return true
+		
+	isUnitWeighted: (net) ->
 		return false for edge in net.edges when (edge.left > 1 or edge.right > 1)
 		return true
 
@@ -77,9 +81,38 @@ class @ExaminePn2 extends @Analyzer
 					return false for p in inter when (net.getEdgeWeight(p, t1) != net.getEdgeWeight(p, t2))
 		return true
 	
+	isHomogeneous: (net) ->
+		for p in net.nodes when p.type is "place"
+			post = net.getPostset(p)
+			if post.length > 1
+				w = net.getEdgeWeight(p, post[0])
+				return false for t in post when net.getEdgeWeight(p, t) isnt w
+		return true
+	
+	isPure: (net) ->
+		for t in net.nodes when t.type is "transition"
+			return false if (ExaminePn2.intersection(net.getPreset(t), net.getPostset(t))).length isnt 0
+		return true
+		
+	isNonPureSimpleSideCondition: (net) ->
+		for t in net.nodes when t.type is "transition"
+			inter = ExaminePn2.intersection(net.getPreset(t), net.getPostset(t))
+			if inter.length > 0
+				return false for p in inter when (net.getEdgeWeight(t, p) isnt 1 or net.getEdgeWeight(p, t) isnt 1 )
+		return true
+		
+	isRestrictedFC: (net) ->
+		for p in net.nodes when p.type is "place"
+			post = net.getPostset(p)
+			if post.length > 1
+				return false for t in post when (net.getPreset(t)).length > 1
+		return true
+		
 	runTests: (net) ->
 		tests = []
-		tests.push {name: "Unit-Weighted", result: ExaminePn2.isUnitWeighted(net)}
+		tests.push {name: "Weighted-Petri-Net", result: @isWeightedPetriNet(net)}
+		return tests if not tests[0].result
+		tests.push {name: "Unit-Weighted", result: @isUnitWeighted(net)}
 		tests.push {name: "Choice-Free", result: @isChoiceFree(net)}
 		tests.push {name: "Marked-Graph", result: @isMarkedGraph(net)}
 		tests.push {name: "Join-Free", result: @isJoinFree(net)}
@@ -87,6 +120,10 @@ class @ExaminePn2 extends @Analyzer
 		tests.push {name: "Asymmetric-Choice", result: @isAsymmetricChoice(net)}
 		tests.push {name: "Free-Choice", result: @isFreeChoice(net)}
 		tests.push {name: "Equal-Conflict", result: @isEqualConflict(net)}
+		tests.push {name: "Homogeneous", result: @isHomogeneous(net)}
+		tests.push {name: "Pure", result: @isPure(net)}
+		tests.push {name: "NP-Simple-Side-Cond", result: @isNonPureSimpleSideCondition(net)}
+		tests.push {name: "Restricted-FC", result: @isRestrictedFC(net)}
 		return tests
 		
 	
