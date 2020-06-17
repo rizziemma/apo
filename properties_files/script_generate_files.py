@@ -3,8 +3,18 @@
 
 """This python script reads its input file (csv)
    containing definitions of Petri nets classes and properties.
-   It outputs two files to be used by the coffeescript webapp.
+   It outputs files to be used by the webapp.
 """
+
+##
+## TODO:
+##    - check that places mentioned in INPUTS and OUTPUTS actually exist.
+##
+## POSSIBLY:
+#"    - add figures to illustrate definitions (examples and counter-examples)
+##    - allow short names for places (to be used in INPUTS and OUTPUTS)
+##  
+##
 
 import csv
 
@@ -78,8 +88,8 @@ def map_line(cells, header):
 ##
 
 ## Explain what we are doing and open source file.
-print("\n This script generates two files used by the coffeescript webapp.\n")
-print("    →  INPUT file: reading "+SOURCEFILE)
+print("\n This script generates files used by the webapp.\n")
+print("  🢧  INPUT file: reading "+SOURCEFILE)
 
 margin = "       "
 
@@ -102,7 +112,7 @@ for data in csv.reader(source, quotechar='"', delimiter=',',
         if not cells_are_empty(data) :
                 head = is_header_line(data)
                 if head:
-                        print(margin + "Header found line #" + str(linenb) + " : " + str(head))
+                        print(margin + "Header found line #{:3d} : ".format(linenb) + str(head))
                         ## Merge this header with the current one.
                         current_header.update(head)
                 else:
@@ -129,7 +139,7 @@ for data in csv.reader(source, quotechar='"', delimiter=',',
 source.close()
 
 print("")
-print("    ✓  Found:")
+print("  🔍 Found:")
 print(margin + str(len(places)) + " places (properties or Petri net classes)")
 print(margin + str(len(transitions)) + " transitions (inference rules)")
 print("")
@@ -138,8 +148,8 @@ print("")
 ##
 ## Write dest files.
 ##
-print("    ←  OUTPUT files: writing " + OUTPROPS)
-print("                         and " + OUTNET)
+print("  🢦  OUTPUT files: writing " + OUTPROPS)
+print("                       and " + OUTNET)
 print("")
 ref = open(OUTPROPS, "w")
 ref.write('{"data":[')
@@ -195,5 +205,5 @@ net.write("\n")
 ref.close()
 net.close()
 
-print("    ✓  Done.")
+print("   ✓ Done.")
 print("")
