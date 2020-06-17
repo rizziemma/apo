@@ -33,6 +33,7 @@ class Editor extends Controller
 
 			# Delte net via the error card
 			$scope.deleteNet = () -> netStorageService.deleteNet(net.name)
+			
 
 			svg = d3.select('#main-canvas svg')
 			force = d3.layout.force()
@@ -41,12 +42,26 @@ class Editor extends Controller
 			dragLine = svg.select('svg .dragline')
 			edges = svg.append('svg:g').selectAll('.edge')
 			nodes = svg.append('svg:g').selectAll('g')
-
+			
+    		
+			zoomed = ->
+				if net.getActiveTool() instanceof ZoomTool
+					svg.selectAll('g').attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+						
+			zoom = d3.behavior.zoom()
+				.on("zoom", -> zoomed())
+					
+			d3.select('#main-canvas svg').call(zoom).call(zoom.event)
+				
+			$scope.resetZoom = () ->
+				svg.selectAll('g').attr('transform', 'translate([0, 0]) scale(1)')
+				
 			# mouse event vars
 			selectedNode = null
 			mouseDownEdge = null
 			mouseDownNode = null
 			mouseUpNode = null
+			
 
 			resetMouseVars = ->
 				mouseDownNode = null

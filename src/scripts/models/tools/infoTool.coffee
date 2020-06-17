@@ -7,7 +7,7 @@ class @InfoTool extends @Tool
 		super()
 		@name = "Info"
 		@description = "Get more informations about a property."
-		@icon = "search"
+		@icon = "info"
 		
 		#read properties
 		@prop = []

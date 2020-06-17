@@ -11,6 +11,7 @@ class @TransitionSystem extends @Net
 			new DeleteTool()
 			new InitStateTool()
 			new LabelTsTool()
+			new ZoomTool()
 		])
 
 		# Setup for the transition systems analyzers in the right order

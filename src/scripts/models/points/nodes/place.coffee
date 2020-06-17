@@ -16,5 +16,7 @@ class @Place extends @Node
 		return "p#{@id}"
 
 	getTokenLabel: ->
+
 		return "" if @tokens is 0
+		return "●" if @tokens is 1
 		return @tokens

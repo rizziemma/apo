@@ -16,6 +16,7 @@ class @PetriNet extends @Net
 			new TokenTool()
 			new DeleteTool()
 			new LabelPnTool()
+			new ZoomTool()
 		])
 
 		# Setup for the petri nets analyzers in the right order
@@ -40,7 +41,11 @@ class @PetriNet extends @Net
 	isFirable: (transition) ->
 		return false if transition.type isnt "transition"
 		preset = @getPreset(transition)
-		return false for place in preset when parseInt(place.tokens) < @getEdgeWeight(place, transition)
+		for place in preset
+			type = @getEdgeType(place, transition)
+			weight = @getEdgeWeight(place, transition)
+			return false if type is "normal" and parseInt(place.tokens) < weight
+			return false if type is "inhibitor" and parseInt(place.tokens) >= weight
 		return true
 
 	# Gets the weight of an edge between two nodes
@@ -51,14 +56,32 @@ class @PetriNet extends @Net
 			else if edge.source.id is target.id and edge.target.id is source.id
 				return parseInt(edge.left)
 		return 0
-
+	
+	# Gets the type of an edge between two nodes
+	getEdgeType: (source, target) ->
+		for edge in @edges
+			if edge.source.id is source.id and edge.target.id is target.id
+				return edge.rightType
+			else if edge.source.id is target.id and edge.target.id is source.id
+				return edge.leftType
+		return 0
+		
+	# Gets the edge between two nodes
+	getEdge: (source, target) ->
+		for edge in @edges
+			if edge.source.id is source.id and edge.target.id is target.id
+				return edge
+			else if edge.source.id is target.id and edge.target.id is source.id
+				return edge
+		return 0
+		
 	# Fires a transition
 	fireTransition: (transition) ->
 		return false if not @isFirable(transition)
 		preset = @getPreset(transition)
 		postset = @getPostset(transition)
-		for place in preset
+		for place in preset when @getEdgeType(place, transition) is "normal"
 			place.tokens = parseInt(place.tokens) - parseInt(@getEdgeWeight(place, transition))
-		for place in postset
+		for place in postset when @getEdgeType(transition, place) is "normal"
 			place.tokens = parseInt(place.tokens) + parseInt(@getEdgeWeight(transition, place))
 		return true

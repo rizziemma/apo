@@ -5,7 +5,7 @@
 
 class @Edge
 	constructor: (options) ->
-		{@source, @target, @id, @left = 0, @right = 0, @length = 150} = options
+		{@source, @target, @id, @left = 0, @right = 0, @length = 150, @leftType="normal", @rightType="normal"} = options
 
 	getText: -> ''
 
@@ -25,7 +25,7 @@ class @Edge
 		'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY
 		
 	markerStart: ->
-		if @left is "I" and @source.type is "transition"
+		if @leftType is "inhibitor" and @source.type is "transition"
 			return 'url(#emptyCircle)'
 		if @left is 1 and @right is 1
 			return 'url(#plainCircle)' if @source.type is "transition"
@@ -35,7 +35,7 @@ class @Edge
 		return ''
 
 	markerEnd: ->
-		if @right is "I" and @target.type is "transition"
+		if @rightType is "inhibitor" and @target.type is "transition"
 			return 'url(#emptyCircle)'
 		if @left is 1 and @right is 1
 			return 'url(#plainCircle)' if @target.type is "transition"

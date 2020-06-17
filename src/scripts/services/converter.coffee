@@ -214,10 +214,20 @@ class Converter extends Service
 						for edge in preset
 							if edge isnt ""
 								existingEdge = false
+								type = "normal"
 								if @isPartOfString("*", edge)
-									weight = edge.split("*")[0]
-									weight = if @isPartOfString("I", weight) then "I" else parseInt(weight, 10)
-									place = net.getNodeByText(edge.split("*")[1])
+									split = edge.split("*")
+									if @isPartOfString("I", split[0] )
+										type = "inhibitor"
+										if split.length is 3
+											weight = split[1]
+											place = net.getNodeByText(split[2])
+										else
+											weight = 1
+											place = net.getNodeByText(split[1])
+									else
+										weight = parseInt(split[0], 10)
+										place = net.getNodeByText(split[1])
 								else
 									weight = 1
 									place = net.getNodeByText(edge)
@@ -225,22 +235,34 @@ class Converter extends Service
 									existingEdge = edge
 								if existingEdge
 									existingEdge.right = weight
+									existingEdge.rightType = type
 								else
 									for edge in net.edges when edge.source is transition and edge.target is place
 										existingEdge = edge
 								if existingEdge
 									existingEdge.left = weight
+									existingEdge.leftType = type
 								else
-									edge = new PnEdge({source: place, target: transition, right: weight})
+									edge = new PnEdge({source: place, target: transition, right: weight, rightType: type})
 									net.addEdge(edge)
 
 						for edge in postset
 							if edge isnt ""
 								existingEdge = false
+								type = "normal"
 								if @isPartOfString("*", edge)
-									weight = edge.split("*")[0]
-									weight = if @isPartOfString("I", weight) then "I" else parseInt(weight, 10)
-									place = net.getNodeByText(edge.split("*")[1])
+									split = edge.split("*")
+									if @isPartOfString("I", split[0] )
+										type = "inhibitor"
+										if split.length is 3
+											weight = split[1]
+											place = net.getNodeByText(split[2])
+										else
+											weight = 1
+											place = net.getNodeByText(split[1])
+									else
+										weight = parseInt(split[0], 10)
+										place = net.getNodeByText(split[1])
 								else
 									weight = 1
 									place = net.getNodeByText(edge)
@@ -248,13 +270,15 @@ class Converter extends Service
 									existingEdge = edge
 								if existingEdge
 									existingEdge.right = weight
+									existingEdge.rightType = type
 								else
 									for edge in net.edges when edge.source is place and edge.target is transition
 										existingEdge = edge
 								if existingEdge
 									existingEdge.left = weight
+									existingEdge.leftType = type
 								else
-									edge = new PnEdge({source: transition, target: place, right: weight})
+									edge = new PnEdge({source: transition, target: place, right: weight, rightType: type})
 									net.addEdge(edge)
 
 					# add initial tokens
