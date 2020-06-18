@@ -11,8 +11,9 @@
 ##    - check that places mentioned in INPUTS and OUTPUTS actually exist.
 ##
 ## POSSIBLY:
-#"    - add figures to illustrate definitions (examples and counter-examples)
+##    - add figures to illustrate definitions (examples and counter-examples)
 ##    - allow short names for places (to be used in INPUTS and OUTPUTS)
+##    - automatically find figures (named with a convention using the unique place/transition id)
 ##  
 ##
 
