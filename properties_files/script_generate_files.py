@@ -33,7 +33,7 @@ HEADERS = [
         ## Header : column name : column id
         
         ## Header 1, for places
-        { "Type":"TYP", "Name":"PNAME", "AKA":"AKA", "Definition":"PDEF", "References":"PREF" } ,
+        { "Type":"TYP", "Name":"PNAME", "ID":"PID", "AKA":"AKA", "Definition":"PDEF", "References":"PREF" } ,
 
         ## Header 2, for transitions
         { "Transition name":"TNAME", "Inputs":"TIN", "Outputs":"TOUT", "Definition":"TDEF", "References":"TREF" } ,
@@ -46,7 +46,7 @@ HEADERS = [
 ##    - a data line otherwise
 ##
 ## Each data line is transformed into a dictionary mapping column id to the corresponding cell value.
-##    e.g. { "TYP" : "P" , "PNAME" : "Safe" , "AKA" : "1-Bounded", "Definition" : "The amount of tokens in each place is bounded by 1." , ... }
+##    e.g. { "TYP" : "P" , "PNAME" : "Safe" , "PID" : "S1", "AKA" : "1-Bounded", "Definition" : "The amount of tokens in each place is bounded by 1." , ... }
 ##
 ###################################################################
 
@@ -170,7 +170,7 @@ for data in places :
         if not first :
                 ref.write(',\n')
 
-        place_id = data["PNAME"].replace(" ", "-")
+        place_id = data["PNAME"].replace(" ", "-") + "*" + data["PID"].replace(" ", "")
                 
         ref.write('{ "name":"'+ place_id +'",'
                   +'"aka":"' + data["AKA"] + '",'

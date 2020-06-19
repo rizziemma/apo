@@ -2,45 +2,44 @@
 .type PPN
 
 .places
-Unit-Weighted
-State-Machine
-Marked-Graph
-Join-Free
-Choice-Free
-Fork-Attribution
-Equal-Conflict
-Free-Choice
-Restricted-Free-Choice
-Asymmetric-Choice
-Pure
-Nonpure-Only-Simple-Side-Conditions
-Homogeneous
-Isolated-Elements
-Well-Connected
-Circuit
+Unit-Weighted*UW1
+State-Machine*SM1
+Marked-Graph*MG1
+Join-Free*JF1,JF2
+Choice-Free*CF1,CF2
+Fork-Attribution*FA1
+Equal-Conflict*EC1
+Free-Choice*FC1
+Restricted-FC*RFC1
+Asymmetric-Choice*AC1
+Pure*P1
+NP-Simple-Side-Cond*NPSSC1
+Circuit*CI1
+Homogeneous-with-1-shared-place*H1S1
 
 .transitions
-Classes_1
-Classes_2
-Classes_3
-Classes_4
-Classes_5
-Classes_6
-Classes_7
-Classes_8
-Classes_9
-Classes_10
-Classes_11
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
 
 .flows
-Classes_1: {Circuit, I*State-Machine} -> {Circuit, State-Machine}
-Classes_2: {Circuit, I*Marked-Graph} -> {Circuit, Marked-Graph}
-Classes_3: {1*Marked-Graph, I*Choice-Free} -> {Marked-Graph, Choice-Free}
-Classes_4: {Choice-Free, I*Equal-Conflict} -> {Choice-Free, Equal-Conflict}
-Classes_5: {State-Machine, I*Join-Free} -> {State-Machine, Join-Free}
-Classes_6: {Join-Free, Choice-Free, I*Fork-Attribution} -> {Join-Free,Choice-Free,Fork-Attribution}
-Classes_7: {Fork-Attribution, I*Join-Free} -> {Fork-Attribution, Join-Free}
-Classes_8: {Fork-Attribution, I*Choice-Free} -> {Fork-Attribution, Choice-Free}
-Classes_9: {Equal-Conflict, I*Free-Choice} -> {Equal-Conflict, Free-Choice}
-Classes_10: {Join-Free, I*Free-Choice} -> {Join-Free, Free-Choice}
-Classes_11: {Free-Choice, I*Asymmetric-Choice} -> {Free-Choice, Asymmetric-Choice}
+1: {CI1, I*SM1} -> {CI1, SM1}
+2: {CI1, I*MG1} -> {CI1, MG1}
+3: {MG1, I*CF1} -> {MG1, CF1}
+4: {CF1, I*EC1} -> {CF1, EC1}
+5: {SM1, I*JF1} -> {SM1, JF1}
+6: {JF2, CF2, I*FA1} -> {JF2, CF2, FA1}
+7: {FA1, I*JF2} -> {FA1, JF2}
+8: {FA1, I*CF2} -> {FA1, CF2}
+9: {EC1, I*FC1} -> {EC1, FC1}
+10: {JF1, I*FC1} -> {JF1, FC1}
+11: {FC1, I*AC1} -> {FC1, AC1}
+
