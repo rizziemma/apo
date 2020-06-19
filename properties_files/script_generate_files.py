@@ -90,7 +90,7 @@ def map_line(cells, header):
 
 ## Explain what we are doing and open source file.
 print("\n This script generates files used by the webapp.\n")
-print("  🢧  INPUT file: reading "+SOURCEFILE)
+print("  ➡  INPUT file: reading "+SOURCEFILE)
 
 margin = "       "
 
@@ -149,7 +149,7 @@ print("")
 ##
 ## Write dest files.
 ##
-print("  🢦  OUTPUT files: writing " + OUTPROPS)
+print("  ⬅  OUTPUT files: writing " + OUTPROPS)
 print("                       and " + OUTNET)
 print("")
 ref = open(OUTPROPS, "w")
