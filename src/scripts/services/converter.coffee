@@ -80,15 +80,27 @@ class Converter extends Service
 							rows.push "" + source.getText() + " " + label + " " + target.getText() for label in edge.labelsRight
 
 			# convert petri nets
-			else if net.type is "pn"
-				rows.push ".type PN"
+			else
+				if net.type is "pn"
+					rows.push ".type PN"
+				else if net.type is "ppn"
+					rows.push ".type PPN"
 				rows.push ""
 
 				# add places
 				rows.push ".places"
+				shared={}
 				for place in net.nodes when place.type is "place"
 					place = @getNodeFromData(place)
-					rows.push place.getText()
+					if place.shared
+						if shared[place.label] is undefined
+							shared[place.label] = "*"+place.id
+						else
+							shared[place.label] += "," + place.id
+					else
+						rows.push if net.type is "ppn" then place.label+"*"+place.id else place.getText()
+				for label, text of shared
+					rows.push label+text
 				rows.push ""
 
 				# add transitions
@@ -108,7 +120,7 @@ class Converter extends Service
 						place = @getNodeFromData(place)
 						if net.getEdgeType(place, transition) is "inhibitor"
 							row += "I*"
-						row += net.getEdgeWeight(place, transition) + "*" + place.getText()
+						row += net.getEdgeWeight(place, transition) + "*" + if net.type is "ppn" then place.id else place.getText()
 						row += ", " if index isnt preset.length - 1
 					row += "} -> {"
 					postset = net.getPostset(transition)
@@ -116,7 +128,7 @@ class Converter extends Service
 						place = @getNodeFromData(place)
 						if net.getEdgeType(transition, place) is "inhibitor"
 							row += "I*"
-						row += net.getEdgeWeight(transition, place) + "*" + place.getText()
+						row += net.getEdgeWeight(transition, place) + "*" + if net.type is "ppn"  then place.id else place.getText()
 						row += ", " if index isnt postset.length - 1
 					row += "}"
 					rows.push row
@@ -128,7 +140,7 @@ class Converter extends Service
 				placesWithTokens.push place for place in net.nodes when place.type is "place" and place.tokens >= 1
 				for place, index in placesWithTokens
 					place = @getNodeFromData(place)
-					row += place.tokens + "*" + place.getText()
+					row += place.tokens + "*" + if net.type is "ppn"  then place.id else place.getText()
 					row += ", " if index isnt placesWithTokens.length - 1
 				row += "}"
 				rows.push row
@@ -186,15 +198,28 @@ class Converter extends Service
 										target: target
 									net.addEdge(edge)
 
-				else if @isPartOfString("PPN", @getAptBlock("type", aptCode))
-					net = new PropertiesPetriNet({name: name})
-
+				else
+					if @isPartOfString("PPN", @getAptBlock("type", aptCode))
+						net = new PropertiesPetriNet({name: name})
+					else if @isPartOfString("PN", @getAptBlock("type", aptCode))
+						net = new PetriNet({name: name})
 					# add places
 					places = @getAptBlockRows("places", aptCode)
 					for placeLabel in places
-						place = new Place({label: placeLabel})
-						net.addPlace(place)
-
+						if @isPartOfString("*", placeLabel)
+							split = placeLabel.split("*") #label*id1,id2...
+							ids = split[1].split(",")
+							if ids.length > 1
+								for id in split[1].split(",")
+									place = new Place({label: split[0], id: id, shared: true})
+									net.addPlace(place)
+							else
+								place = new Place({label: split[0], id: ids[0]})
+								net.addPlace(place)
+						else
+							place = new Place({label: placeLabel, id: placeLabel})
+							net.addPlace(place)
+							
 					# add transitions
 					transitionLabels = new Map()
 					transitions = @getAptBlockRows("transitions", aptCode)
@@ -225,16 +250,16 @@ class Converter extends Service
 										type = "inhibitor"
 										if split.length is 3
 											weight = split[1]
-											place = net.getNodeByText(split[2])
+											place = net.getNodeById(split[2])
 										else
 											weight = 1
-											place = net.getNodeByText(split[1])
+											place = net.getNodeById(split[1])
 									else
 										weight = parseInt(split[0], 10)
-										place = net.getNodeByText(split[1])
+										place = net.getNodeById(split[1])
 								else
 									weight = 1
-									place = net.getNodeByText(edge)
+									place = net.getNodeById(edge)
 								for edge in net.edges when edge.source is place and edge.target is transition
 									existingEdge = edge
 								if existingEdge
@@ -252,6 +277,7 @@ class Converter extends Service
 
 						for edge in postset
 							if edge isnt ""
+								edge = edge.replace(" ", "")
 								existingEdge = false
 								type = "normal"
 								if @isPartOfString("*", edge)
@@ -260,16 +286,16 @@ class Converter extends Service
 										type = "inhibitor"
 										if split.length is 3
 											weight = split[1]
-											place = net.getNodeByText(split[2])
+											place = net.getNodeById(split[2])
 										else
 											weight = 1
-											place = net.getNodeByText(split[1])
+											place = net.getNodeById(split[1])
 									else
 										weight = parseInt(split[0], 10)
-										place = net.getNodeByText(split[1])
+										place = net.getNodeById(split[1])
 								else
 									weight = 1
-									place = net.getNodeByText(edge)
+									place = net.getNodeById(edge)
 								for edge in net.edges when edge.source is transition and edge.target is place
 									existingEdge = edge
 								if existingEdge
@@ -290,129 +316,19 @@ class Converter extends Service
 					for marking in markings
 						if @isPartOfString("*", marking)
 							number = marking.split("*")[0]
-							place = net.getNodeByText(marking.split("*")[1])
+							places = net.getNodesByLabel(marking.split("*")[1])
 						else
 							number = 1
-							place = net.getNodeByText(marking)
-						place.tokens = number
+							places = net.getNodesByLabel(marking)
+						for place in places
+							net.setTokens(place, number)
 
 					# rename transitions from id's to labels
 					transitionLabels.forEach (label, transitionId) ->
 						net.getNodeByText(transitionId).label = label
 						
-				else if @isPartOfString("PN", @getAptBlock("type", aptCode))
-					net = new PetriNet({name: name})
+				
 
-					# add places
-					places = @getAptBlockRows("places", aptCode)
-					for placeLabel in places
-						place = new Place({label: placeLabel})
-						net.addPlace(place)
-
-					# add transitions
-					transitionLabels = new Map()
-					transitions = @getAptBlockRows("transitions", aptCode)
-					for transitionRow in transitions
-						transitionId = transitionRow.split(" ")[0].split("[")[0]
-
-						# labels are saved and applied later
-						if @isPartOfString("label=", transitionRow)
-							transitionLabels.set(transitionId, transitionRow.split("label=\"")[1].split("\"")[0])
-						transition = new Transition({label: transitionId})
-						net.addTransition(transition)
-
-					# add edges
-					flows = @getAptBlockRows("flows", aptCode)
-					for flow in flows
-						transition = net.getNodeByText(flow.split(": {")[0])
-						preset = flow.split(": {")[1].split("}")[0].replace(", ", ",").split(",")
-						postset = flow.split("-> {")[1].split("}")[0].replace(", ", ",").split(",")
-
-						# only create edges if they not already exist
-						for edge in preset
-							if edge isnt ""
-								existingEdge = false
-								type = "normal"
-								if @isPartOfString("*", edge)
-									split = edge.split("*")
-									if @isPartOfString("I", split[0] )
-										type = "inhibitor"
-										if split.length is 3
-											weight = split[1]
-											place = net.getNodeByText(split[2])
-										else
-											weight = 1
-											place = net.getNodeByText(split[1])
-									else
-										weight = parseInt(split[0], 10)
-										place = net.getNodeByText(split[1])
-								else
-									weight = 1
-									place = net.getNodeByText(edge)
-								for edge in net.edges when edge.source is place and edge.target is transition
-									existingEdge = edge
-								if existingEdge
-									existingEdge.right = weight
-									existingEdge.rightType = type
-								else
-									for edge in net.edges when edge.source is transition and edge.target is place
-										existingEdge = edge
-								if existingEdge
-									existingEdge.left = weight
-									existingEdge.leftType = type
-								else
-									edge = new PnEdge({source: place, target: transition, right: weight, rightType: type})
-									net.addEdge(edge)
-
-						for edge in postset
-							if edge isnt ""
-								existingEdge = false
-								type = "normal"
-								if @isPartOfString("*", edge)
-									split = edge.split("*")
-									if @isPartOfString("I", split[0] )
-										type = "inhibitor"
-										if split.length is 3
-											weight = split[1]
-											place = net.getNodeByText(split[2])
-										else
-											weight = 1
-											place = net.getNodeByText(split[1])
-									else
-										weight = parseInt(split[0], 10)
-										place = net.getNodeByText(split[1])
-								else
-									weight = 1
-									place = net.getNodeByText(edge)
-								for edge in net.edges when edge.source is transition and edge.target is place
-									existingEdge = edge
-								if existingEdge
-									existingEdge.right = weight
-									existingEdge.rightType = type
-								else
-									for edge in net.edges when edge.source is place and edge.target is transition
-										existingEdge = edge
-								if existingEdge
-									existingEdge.left = weight
-									existingEdge.leftType = type
-								else
-									edge = new PnEdge({source: transition, target: place, right: weight, rightType: type})
-									net.addEdge(edge)
-
-					# add initial tokens
-					markings = @getAptBlock("initial_marking", aptCode).split("{")[1].split("}")[0].split(", ")
-					for marking in markings
-						if @isPartOfString("*", marking)
-							number = marking.split("*")[0]
-							place = net.getNodeByText(marking.split("*")[1])
-						else
-							number = 1
-							place = net.getNodeByText(marking)
-						place.tokens = number
-
-					# rename transitions from id's to labels
-					transitionLabels.forEach (label, transitionId) ->
-						net.getNodeByText(transitionId).label = label
 
 				console.log net
 

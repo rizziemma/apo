@@ -28,7 +28,7 @@ class @TokenTool extends @Tool
 				if formElements
 					tokens = formElements[0].value
 					if tokens >= 0
-						mouseDownNode.tokens = tokens
+						net.setTokens(mouseDownNode, tokens)
 						restart()
 
 		else if mouseDownNode.type is "transition"

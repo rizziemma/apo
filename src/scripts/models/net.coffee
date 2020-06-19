@@ -23,7 +23,8 @@ class @Net
 		return false
 
 	addNode: (node) ->
-		node.id = @getMaxNodeId()+1
+		if node.id is false
+			node.id = @getMaxNodeId()+1
 		@nodes.push(node)
 
 	deleteNode: (deleteNode) ->
@@ -68,6 +69,10 @@ class @Net
 	getNodeByText: (text) ->
 		return node for node in @nodes when node.getText() is text
 		return false
+		
+	getNodeById: (id) ->
+		return node for node in @nodes when node.id is id
+		return false
 
 	getMaxNodeId: ->
 		maxId = -1
@@ -82,3 +87,7 @@ class @Net
 		maxId
 
 	isFirable: (node) -> false
+	
+	printCoordinates: ->
+		for node in nodes
+			console.log ("ID=" + node.id + " x=" + node.x + " y=" + node.y)

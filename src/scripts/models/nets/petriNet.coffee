@@ -26,7 +26,32 @@ class @PetriNet extends @Net
 			new CoverabilityAnalyzer()
 			new PropertiesNetAnalyzer()
 		])
+		
+	getPreset: (node) ->
+		preset = []
+		for edge in @edges
+			if (edge.target.id is node.id and edge.right >= 1)
+				preset.push(edge.source)
+			else if (edge.source.id is node.id and edge.left >= 1)
+				preset.push(edge.target)
+			else if (node.shared and edge.target.label is node.label and edge.right >=1)
+				preset.push(edge.source)
+			else if (node.shared and edge.source.label is node.label and edge.left >= 1)
+				preset.push(edge.target)
+		return preset
 
+	getPostset: (node) ->
+		preset = []
+		for edge in @edges
+			if (edge.target.id is node.id and edge.left >= 1)
+				preset.push(edge.source)
+			else if (edge.source.id is node.id and edge.right >= 1)
+				preset.push(edge.target)
+			else if (node.shared and edge.target.label is node.label and edge.left >= 1)
+				preset.push(edge.source)
+			else if (node.shared and edge.source.label is node.label and edge.right >= 1)
+				preset.push(edge.target)
+		return preset
 	# Add a new transition node
 	addTransition: (point) ->
 		transition = new Transition(point)
@@ -65,15 +90,7 @@ class @PetriNet extends @Net
 			else if edge.source.id is target.id and edge.target.id is source.id
 				return edge.leftType
 		return 0
-		
-	# Gets the edge between two nodes
-	getEdge: (source, target) ->
-		for edge in @edges
-			if edge.source.id is source.id and edge.target.id is target.id
-				return edge
-			else if edge.source.id is target.id and edge.target.id is source.id
-				return edge
-		return 0
+
 		
 	# Fires a transition
 	fireTransition: (transition) ->
@@ -81,7 +98,24 @@ class @PetriNet extends @Net
 		preset = @getPreset(transition)
 		postset = @getPostset(transition)
 		for place in preset when @getEdgeType(place, transition) is "normal"
-			place.tokens = parseInt(place.tokens) - parseInt(@getEdgeWeight(place, transition))
+			@setTokens(place, parseInt(place.tokens) - parseInt(@getEdgeWeight(place, transition)))
 		for place in postset when @getEdgeType(transition, place) is "normal"
-			place.tokens = parseInt(place.tokens) + parseInt(@getEdgeWeight(transition, place))
+			@setTokens(place, parseInt(place.tokens) + parseInt(@getEdgeWeight(transition, place)))
 		return true
+		
+	getNodesByLabel: (text) ->
+		result = []
+		for node in @nodes when node.label is text
+			result.push(node)
+		return result
+		
+	setTokens: (place, tokens) ->
+		if place.type isnt "place"
+			return false
+		else
+			if place.shared
+				console.log "SHARED"
+				for p in @getNodesByLabel(place.label)
+					p.tokens = tokens
+			else
+				place.tokens = tokens
