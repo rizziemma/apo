@@ -89,5 +89,5 @@ class @Net
 	isFirable: (node) -> false
 	
 	printCoordinates: ->
-		for node in nodes
-			console.log ("ID=" + node.id + " x=" + node.x + " y=" + node.y)
+		for node in @nodes
+			console.log ('"' + node.id + '": {"x":' + node.x/window.innerWidth + ', "y":' + node.y/window.innerHeight + '},')

@@ -114,7 +114,6 @@ class @PetriNet extends @Net
 			return false
 		else
 			if place.shared
-				console.log "SHARED"
 				for p in @getNodesByLabel(place.label)
 					p.tokens = tokens
 			else

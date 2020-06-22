@@ -18,28 +18,28 @@ Circuit*CI1
 Homogeneous-with-1-shared-place*H1S1
 
 .transitions
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
+t1
+t2
+t3
+t4
+t5
+t6
+t7
+t8
+t9
+t10
+t11
 
 .flows
-1: {CI1, I*SM1} -> {CI1, SM1}
-2: {CI1, I*MG1} -> {CI1, MG1}
-3: {MG1, I*CF1} -> {MG1, CF1}
-4: {CF1, I*EC1} -> {CF1, EC1}
-5: {SM1, I*JF1} -> {SM1, JF1}
-6: {JF2, CF2, I*FA1} -> {JF2, CF2, FA1}
-7: {FA1, I*JF2} -> {FA1, JF2}
-8: {FA1, I*CF2} -> {FA1, CF2}
-9: {EC1, I*FC1} -> {EC1, FC1}
-10: {JF1, I*FC1} -> {JF1, FC1}
-11: {FC1, I*AC1} -> {FC1, AC1}
+t1: {CI1, I*SM1} -> {CI1, SM1}
+t2: {CI1, I*MG1} -> {CI1, MG1}
+t3: {MG1, I*CF1} -> {MG1, CF1}
+t4: {CF1, I*EC1} -> {CF1, EC1}
+t5: {SM1, I*JF1} -> {SM1, JF1}
+t6: {JF2, CF2, I*FA1} -> {JF2, CF2, FA1}
+t7: {FA1, I*JF2} -> {FA1, JF2}
+t8: {FA1, I*CF2} -> {FA1, CF2}
+t9: {EC1, I*FC1} -> {EC1, FC1}
+t10: {JF1, I*FC1} -> {JF1, FC1}
+t11: {FC1, I*AC1} -> {FC1, AC1}
 

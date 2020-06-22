@@ -91,6 +91,7 @@ class Editor extends Controller
 				
 			# update graph layout (called when needed)
 			restart = ->
+				#net.printCoordinates()
 				edges = edges.data(net.edges)
 
 				# update existing links

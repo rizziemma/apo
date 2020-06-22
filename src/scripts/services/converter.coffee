@@ -229,7 +229,7 @@ class Converter extends Service
 						# labels are saved and applied later
 						if @isPartOfString("label=", transitionRow)
 							transitionLabels.set(transitionId, transitionRow.split("label=\"")[1].split("\"")[0])
-						transition = new Transition({label: transitionId})
+						transition = new Transition({label: transitionId, id: transitionId})
 						net.addTransition(transition)
 
 					# add edges

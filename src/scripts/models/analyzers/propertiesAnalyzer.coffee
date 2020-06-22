@@ -8,9 +8,11 @@ class @PropertiesNetAnalyzer extends @Analyzer
 		@icon = "share"
 		@name = "Properties Petri Net"
 		@description =  "Compute a petri net's properties in a properties petri net"
-		@aptPPN = "not defined yet"
+		@aptPPN = "undefined"
+		@coordinates = "undefined"
 		
-		PropertiesNetAnalyzer.loadFile(this)
+		PropertiesNetAnalyzer.loadFile(this, "properties_net.json", "aptPPN", false)
+		PropertiesNetAnalyzer.loadFile(this, "coordinates.json", "coordinates", true)
 
 	# Ask for the new nets name
 	inputOptions: (currentNet, netStorageService) ->
@@ -38,21 +40,31 @@ class @PropertiesNetAnalyzer extends @Analyzer
 		for test in results
 			mark+=", 1*"+test.name
 		code = @aptPPN + ".initial_marking {"+mark+"}"
-		
 		#convert to graph + compute
 		graphPPN = converterService.getNetFromApt(code)
 		graphPPN.name = inputOptions[0].value
-		netStorageService.addNet(graphPPN)
 		
-	@loadFile = (analyzer) ->
+		
+		#set coordinates
+		for n in graphPPN.nodes
+			node = graphPPN.getNodeById(n.id)
+			point = @coordinates[node.id]
+			if point
+				node.fixed = true
+				node.x = point["x"]*window.innerWidth
+				node.y = point["y"]*window.innerHeight
+		netStorageService.addNet(graphPPN)
+		console.log "width : " + window.innerWidth + "height : " + window.innerHeight
+		
+	@loadFile = (analyzer, file, prop, toEval) ->
 		req = new XMLHttpRequest()
 		req.addEventListener 'readystatechange', ->
 			if req.readyState is 4                        # ReadyState Complete
 				successResultCodes = [200, 304]
 				if req.status in successResultCodes
-					analyzer.aptPPN = req.responseText
+					analyzer[prop] = if toEval then (eval '(' + req.responseText + ')').data else req.responseText
 				else
 					console.log 'Error loading data...'
 
-		req.open 'GET', '/resources/properties_net.json', true
+		req.open 'GET', '/resources/'+file, true
 		req.send()
