@@ -25,6 +25,7 @@ class @Net
 	addNode: (node) ->
 		if node.id is false
 			node.id = @getMaxNodeId()+1
+			node.label = ""+node.id
 		@nodes.push(node)
 
 	deleteNode: (deleteNode) ->

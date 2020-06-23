@@ -61,7 +61,6 @@ class @PetriNet extends @Net
 	addPlace: (point) ->
 		place = new Place(point)
 		@addNode(place)
-
 	# Checks if a transition is firable
 	isFirable: (transition) ->
 		return false if transition.type isnt "transition"
