@@ -89,6 +89,12 @@ class @PetriNet extends @Net
 			else if edge.source.id is target.id and edge.target.id is source.id
 				return edge.leftType
 		return 0
+	
+	getEdge: (source, target) ->
+		for edge in @edges
+			if edge.source.id is source.id and edge.target.id is target.id
+				return edge
+		return 0
 
 		
 	# Fires a transition
@@ -117,3 +123,94 @@ class @PetriNet extends @Net
 					p.tokens = tokens
 			else
 				place.tokens = tokens
+	
+	clone = (obj) ->
+		return obj  if obj is null or typeof (obj) isnt "object"
+		temp = new obj.constructor()
+		for key of obj
+			temp[key] = clone(obj[key])
+		temp
+		
+		
+	getNetWithNoSharedPlaces : () ->
+		net = new PetriNet()
+		#clone nodes to new net and store first of each shared place
+		shared = {}
+		for n in @nodes
+			if n.type is "place" and n.shared
+				if shared[n.label] is undefined
+					newP = clone(n)
+					newP.shared = false
+					shared[n.label] = newP
+					net.addNode(newP)
+			else
+				net.addNode(clone(n))
+
+		for edge in @edges
+			rightDone = not (edge.right > 0)
+			leftDone = not (edge.left > 0)
+			
+			if rightDone and leftDone
+				continue
+				
+			target = 0
+			source = 0
+			#get source and target nodes
+			if shared[edge.target.label]?
+				target = shared[edge.target.label]
+			else
+				target = net.getNodeById(edge.target.id)
+				
+			if shared[edge.source.label]?
+				source = shared[edge.source.label]
+			else
+				source = net.getNodeById(edge.source.id)
+			
+			for existingEdge in net.edges
+				break if rightDone and leftDone
+				if existingEdge.source is source and existingEdge.target is target
+					if not rightDone
+						if existingEdge.rightType is edge.rightType
+							existingEdge.right += edge.right
+							rightDone = true
+						else if existingEdge.right is 0
+							existingEdge.right = edge.right
+							existingEdge.rightType = edge.rightType
+							rightDone = true
+					if not leftDone
+						if existingEdge.leftType is edge.leftType
+							existingEdge.left += edge.left
+							leftDone = true
+						else if existingEdge.left is 0
+							existingEdge.left = edge.right
+							existingEdge.leftType = edge.leftType
+							leftDone = true
+				if existingEdge.source is target and existingEdge.target is source
+					if not rightDone
+						if existingEdge.leftType is edge.rightType
+							existingEdge.left += edge.right
+							rightDone = true
+						else if existingEdge.left is 0
+							existingEdge.left = edge.right
+							existingEdge.leftType = edge.rightType
+							rightDone = true
+					if not leftDone
+						if existingEdge.rightType is edge.leftType
+							existingEdge.right += edge.left
+							leftDone = true
+						else if existingEdge.right is 0
+							existingEdge.right = edge.right
+							existingEdge.rightType = edge.leftType
+							leftDone = true
+			newEdge = 0
+			if not leftDone and not rightDone
+				newEdge = new Edge({source: source, target: target, right: edge.right, rightType: edge.rightType, left: edge.left, leftType: edge.leftType})
+			else if not	leftDone
+				newEdge = new Edge({source: source, target: target, left: edge.left, leftType: edge.leftType})
+			else if not rightDone
+				newEdge = new Edge({source: source, target: target, right: edge.right, rightType: edge.rightType})
+			
+			if newEdge
+				net.addEdge(newEdge)
+		return net
+		

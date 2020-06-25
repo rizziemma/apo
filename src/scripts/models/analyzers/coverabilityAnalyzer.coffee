@@ -25,7 +25,8 @@ class @CoverabilityAnalyzer extends @Analyzer
 
 	# connect to angular-apt
 	analyze: (inputOptions, outputElements, currentNet, apt, converterService, netStorageService, formDialogService) ->
-		aptNet = converterService.getAptFromNet(currentNet)
+		net = currentNet.getNetWithNoSharedPlaces()
+		aptNet = converterService.getAptFromNet(net)
 		apt.getCoverabilityGraph(aptNet).then (response) ->
 			aptCov = response.data.lts
 			covGraph = converterService.getNetFromApt(aptCov)

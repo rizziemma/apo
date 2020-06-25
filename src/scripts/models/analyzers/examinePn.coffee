@@ -12,7 +12,10 @@ class @ExaminePn extends @Analyzer
 
 	# connect to angular-apt
 	analyze: (inputOptions, outputElements, currentNet, apt, converterService, netStorageService, formDialogService) ->
-		aptNet = converterService.getAptFromNet(currentNet)
+		net = currentNet.getNetWithNoSharedPlaces()
+		console.log net
+		aptNet = converterService.getAptFromNet(net)
+		console.log aptNet
 		apt.examinePn(aptNet).then (response) ->
 			outputElements.splice(0) while outputElements.length > 0 # clear outputElements
 			for test, result of response.data

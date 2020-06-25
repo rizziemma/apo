@@ -3,7 +3,7 @@
 ###
 
 class @Place extends @Node
-	constructor: (point) ->
+	constructor: (point=false) ->
 		{@tokens = 0, @shared = false} = point
 		super(point)
 		@type = "place"

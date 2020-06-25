@@ -4,8 +4,8 @@
 ###
 
 class @Net
-	constructor: (netObject) ->
-		{@name, @nodes = [], @edges = [], @tools = []} = netObject
+	constructor: (netObject = {}) ->
+		{@name = "", @nodes = [], @edges = [], @tools = []} = netObject
 
 	setTools: (@tools) ->
 		@activeTool = @tools[0].name if not @activeTool and @tools.length > 0

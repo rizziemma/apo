@@ -131,8 +131,9 @@ class @ExaminePn2 extends @Analyzer
 	analyze: (inputOptions, outputElements, currentNet, apt, converterService, netStorageService, formDialogService) =>
 		outputElements.splice(0) while outputElements.length > 0 # clear outputElements
 		
+		net = currentNet.getNetWithNoSharedPlaces()
 		# print tests
-		for test in @runTests(currentNet)
+		for test in @runTests(net)
 			result = "Yes" if test.result is true
 			result = "No" if test.result is false
 			outputElements.push(

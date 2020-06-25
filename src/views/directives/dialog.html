@@ -28,6 +28,13 @@
 						flex-gt-sm="{{ dialog.getInputWidth(input) }}"
 						ng-if="dialog.showInput(input)">
 						<label ng-class="'input-label-' + input.type">{{ input.name }}</label>
+						<div ng-if="input.type == 'select'">
+         					<select class="md-select" placeholder="input.value" required>
+            					<option ng-repeat = "e in input.chooseFrom"
+               					ng-value = "{{e.value}}">{{ e.name }}
+            					</option>
+         					</select>
+         				</div>         				
 						<input
 							ng-if="input.type == 'number'"
 							required type="number"
@@ -97,7 +104,7 @@
 
 						<md-list class="fixedRows" flex layout="row" layout-wrap>
 							<md-list-item
-								ng-if="input.value.indexOf(item) < 0"
+								ng-if="input.value.indexOf(item) < 0 && input.type != 'select'"
 								ng-repeat="(index, item) in input.chooseFrom"
 								flex-xs="100"
 								flex-gt-xs="50"
