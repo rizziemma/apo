@@ -27,7 +27,14 @@ class Converter extends Service
 				when "state" then return new State(nodeData)
 				when "initState" then return new InitState(nodeData)
 				else return new Node(nodeData)
-
+				
+		@importNet = (net, format) ->
+			console.log format, net
+			switch format
+				when "APT" then return @getNetFromApt(net)
+				when "ND" then return @getNetFromNd(net)
+				else return 0
+				
 		@getAptFromNet = (net) ->
 			code = ""
 			rows = []

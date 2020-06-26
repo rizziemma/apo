@@ -83,16 +83,25 @@ class MenubarController extends Controller
 					return false # do not close dialog after download
 			})
 
-		@importAPT = (event) ->
+		@importNet = (event) ->
 			formDialogService.runDialog({
-				title: "APT Import"
-				text: "Insert APT code here to import a net"
+				title: "Import"
+				text: "Import a net in APO."
 				ok: "import"
 				event: event
 				formElements: [
 					{
+						type: "select"
+						name: "Choose the file format"
+						value: ""
+						chooseFrom: [
+							{name: "APT", value: "APT"},
+							{name: "ND", value: "ND"}
+						]
+					}
+					{
 						type: "file"
-						name: "Upload .apt-File"
+						name: "Upload file"
 						onfileload: (text) ->
 							angular.element(document.getElementById('form-bottom')).scope().dialog.setInput(1, text)
 					}
@@ -101,24 +110,30 @@ class MenubarController extends Controller
 						name: "Insert Code"
 						validation: (value) ->
 							return "" if not value
-							return "No valid APT net" if not value.split(".name \"")[1]
-							return "A net with this name already exists" if netStorageService.getNetByName(value.split(".name \"")[1].split("\"")[0])
 							return true
 					}
 					{
 						type: "checkbox"
 						name: "Normalize APT Code before import"
-						value: true
+						value: false
 						showIf: () -> $rootScope.online
 					}
 				]
 			})
 			.then (formElements) ->
 				if formElements
-
+					console.log formElements
+					if formElements[0].value is ""
+						$mdDialog.show(
+							$mdDialog.alert
+								title: "Format Error"
+								textContent: "Couldn't import the net because no format selected"
+								ok: "OK"
+						)
+				
 					# Normalize online?
-					if formElements[2].value is true and $rootScope.online
-						apt.normalizeApt(formElements[1].value).then (response) ->
+					else if formElements[3].value is true and $rootScope.online and formElements[0].value is "APT"
+						apt.normalizeApt(formElements[2].value).then (response) ->
 							
 							if response.data.error
 								$mdDialog.show(
@@ -132,7 +147,7 @@ class MenubarController extends Controller
 								netStorageService.addNet(net)
 								$state.go "editor", name: net.name
 					else
-						net = converterService.getNetFromApt(formElements[1].value)
+						net = converterService.importNet(formElements[2].value, formElements[0].value)
 						if not net
 							$mdDialog.show(
 								$mdDialog.alert
@@ -141,8 +156,15 @@ class MenubarController extends Controller
 									ok: "OK"
 							)
 						else
-							netStorageService.addNet(net)
-							$state.go "editor", name: net.name
+							if not netStorageService.addNet(net)
+								$mdDialog.show(
+									$mdDialog.alert
+										title: "Name Error"
+										textContent: "Invalid name : name is null or a net with this name already exists"
+										ok: "OK"
+								)
+							else
+								$state.go "editor", name: net.name
 
 		@startAnalyzer = (analyzer, net, event) ->
 			analyzer.run(aptService, netStorageService, converterService, net, formDialogService, event, $rootScope.online)
