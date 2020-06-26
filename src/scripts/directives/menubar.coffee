@@ -103,7 +103,7 @@ class MenubarController extends Controller
 						type: "file"
 						name: "Upload file"
 						onfileload: (text) ->
-							angular.element(document.getElementById('form-bottom')).scope().dialog.setInput(1, text)
+							angular.element(document.getElementById('form-bottom')).scope().dialog.setInput(2, text)
 					}
 					{
 						type: "code"
@@ -122,7 +122,6 @@ class MenubarController extends Controller
 			})
 			.then (formElements) ->
 				if formElements
-					console.log formElements
 					if formElements[0].value is ""
 						$mdDialog.show(
 							$mdDialog.alert
@@ -152,7 +151,7 @@ class MenubarController extends Controller
 							$mdDialog.show(
 								$mdDialog.alert
 									title: "Syntax Error"
-									textContent: "Couldn't import the net because of syntax errors in the apt code"
+									textContent: "Couldn't import the net because of syntax errors in the code"
 									ok: "OK"
 							)
 						else

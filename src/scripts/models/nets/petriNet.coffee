@@ -170,36 +170,24 @@ class @PetriNet extends @Net
 				break if rightDone and leftDone
 				if existingEdge.source is source and existingEdge.target is target
 					if not rightDone
-						if existingEdge.rightType is edge.rightType
+						if existingEdge.rightType is edge.rightType or existingEdge.right is 0
 							existingEdge.right += edge.right
-							rightDone = true
-						else if existingEdge.right is 0
-							existingEdge.right = edge.right
 							existingEdge.rightType = edge.rightType
 							rightDone = true
 					if not leftDone
-						if existingEdge.leftType is edge.leftType
+						if existingEdge.leftType is edge.leftType or existingEdge.left is 0
 							existingEdge.left += edge.left
-							leftDone = true
-						else if existingEdge.left is 0
-							existingEdge.left = edge.right
 							existingEdge.leftType = edge.leftType
 							leftDone = true
 				if existingEdge.source is target and existingEdge.target is source
 					if not rightDone
-						if existingEdge.leftType is edge.rightType
+						if existingEdge.leftType is edge.rightType or existingEdge.left is 0
 							existingEdge.left += edge.right
-							rightDone = true
-						else if existingEdge.left is 0
-							existingEdge.left = edge.right
 							existingEdge.leftType = edge.rightType
 							rightDone = true
 					if not leftDone
-						if existingEdge.rightType is edge.leftType
+						if existingEdge.rightType is edge.leftType or existingEdge.right is 0
 							existingEdge.right += edge.left
-							leftDone = true
-						else if existingEdge.right is 0
-							existingEdge.right = edge.right
 							existingEdge.rightType = edge.leftType
 							leftDone = true
 			newEdge = 0

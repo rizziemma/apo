@@ -343,7 +343,90 @@ class Converter extends Service
 				console.error error
 				return false
 			return net
+			
+			
+		@getNetFromNd = (ndCode) ->
+			place_reg = /p ([^ ]*) ([^ ]*) (\{([^\}]*)\}|([^ ]*)) ([^ ]*) .[^ ]?( (\{(.*)\}|([^ ]*)) .[^ ]?)?/
+			transition_reg = /t ([^ ]*) ([^ ]*) (\{([^\}]*)\}|([^ ]*)) (. [^ ]* [^ ]* .[^ ]? (\{(.*)\}|([^ ]*)) .[^ ]?|[^ ]* [^ ]* .[^ ]?)/
+			edge_reg = /e (\{([^\}]*)\}|([^ ]*)) (\{([^\}]*)\}|([^ ]*))( \?\-| \?| )([^ ]*) .[^ ]?/
+			title_reg = /h (\{([^\}]*)\}|([^ ]*))/
+			try
+				net = new PetriNet()
+				for line in ndCode.split("\n")
+					switch line.split(" ")[0]
+						when "p"
+							[pad, x, y, pad, pad, id, tokens, pad, pad, label] = place_reg.exec(line)
+							x = parseInt(x, 10)
+							y = parseInt(y, 10) + 140
+							tokens = parseInt(tokens, 10)
+							place = new Place({x: x, y: y, id: id, tokens: tokens, label: if label then label else id})
+							place.fixed = true
+							net.addNode(place)
+						when "t"
+							[pad, x, y, pad, id1, id2, pad, label] = transition_reg.exec(line)
+							id = if id1? then id1 else id2
+							x = parseInt(x, 10)
+							y = parseInt(y, 10) + 140
+							transition = new Transition({x: x, y: y, id: id, label: if label then label else id})
+							transition.fixed = true
+							net.addNode(transition)
+						when "e"
+							[pad, pad, s_id1, s_id2, pad, t_id1, t_id2, type, weight] = edge_reg.exec(line)
+							source = net.getNodeById(if s_id1 then s_id1 else s_id2)
+							target = net.getNodeById(if t_id1 then t_id1 else t_id2)
+							weight = parseInt(weight, 10)
+							if @isPartOfString("?-", type)
+								type = "inhibitor"
+							else if @isPartOfString("?", type)
+								type = "readArc"
+							else
+								type = "normal"
+								
+							rightDone = false
+							leftDone = if type isnt "readArc" then true else false
+							edge = net.getEdge(source, target)
+							
+							if edge and (edge.rightType is type or (type is "readArc" and (edge.rightType is "normal" or edge.right is 0) or edge.right is 0))
+								edge.right += weight
+								edge.rightType = if type is "readArc" then "normal" else type
+								rightDone = true
+								
+							if edge and type is "readArc"
+								if edge.leftType is "normal" or edge.left is 0
+									edge.left += weight
+									edge.leftType = "normal"
+									leftDone = true
+									
+							if not rightDone or not leftDone
+								edge = net.getEdge(target, source)
+								if edge and (edge.leftType is type or (type is "readArc" and (edge.leftType is "normal" or edge.left is 0) or edge.left is 0))
+									edge.left += weight
+									edge.leftType = if type is "readArc" then "normal" else type
+									rightDone = true
+									
+								if edge and type is "readArc"
+									if edge.rightType is "normal" or edge.righ is 0
+										edge.right += weight
+										edge.rightType = "normal"
+										leftDone = true
+										
+							if not rightDone and not leftDone
+								net.addEdge(new Edge({source: source, target: target, right : weight, left : weight}))
+							else if not rightDone
+								net.addEdge(new Edge({source: source, target: target, right : weight, rightType: if type isnt"readArc" then type else "normal"}))
+							else if not leftDone
+								net.addEdge(new Edge({source: target, target: source, right : weight, rightType: if type isnt"readArc" then type else "normal"}))
+						when "h"
+							[pad1, n1, n2] = title_reg.exec(line)
+							net.name = if n1 then n1 else n2
+						else
+					
+				console.log net
 
+			catch error
+				console.error error
+				return false
+			return net
 		# checks if the searchFor string is part of the searchIn string
 		@isPartOfString = (searchFor, searchIn) ->
 			searchIn.replace(searchFor, "") isnt searchIn

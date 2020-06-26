@@ -13,7 +13,7 @@ class @Place extends @Node
 
 	getText: ->
 		return @label if @label
-		return @id
+		return "p#{@id}"
 
 	getTokenLabel: ->
 
