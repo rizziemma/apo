@@ -29,10 +29,16 @@ class Converter extends Service
 				else return new Node(nodeData)
 				
 		@importNet = (net, format) ->
-			console.log format, net
 			switch format
-				when "APT" then return @getNetFromApt(net)
-				when "ND" then return @getNetFromNd(net)
+				
+				when "apt" then return @getNetFromApt(net)
+				when "ndr" then return @getNetFromNd(net)
+				else return 0
+				
+		@exportNet = (net, format) ->
+			switch format
+				when "apt" then return @getAptFromNet(net)
+				when "ndr" then return @getNdFromNet(net)
 				else return 0
 				
 		@getAptFromNet = (net) ->
@@ -427,6 +433,52 @@ class Converter extends Service
 				console.error error
 				return false
 			return net
+		
+		@getNdFromNet = (net) ->
+			code = ""
+			rows = []
+			
+			for n in net.nodes
+				text = ""
+				if n.type is "place"
+					text = "p "+n.x+" "+(n.y-140)+" {"+ n.id + "} "+n.tokens+" n"
+					if n.label and n.label isnt n.id
+						text += " {"+n.label+"} ne"
+				else if n.type is "transition"
+					text = "t "+n.x+" "+(n.y-140)+" {" +n.id+"}"
+					if n.label and n.label is n.id
+						text += " c 0 w n {"+n.label+"} ne"
+					else
+						text += "0 w n"
+				rows.push(text)
+				
+			for e in net.edges
+				if e.right is e.left #read arc
+					if e.target.type is "transition"
+						text = "e {"+e.source.id+"} {"+e.target.id+"} ?"+e.right+" n"
+						rows.push(text)
+					else
+						text = "e {"+e.target.id+"} {"+e.source.id+"} ?"+e.right+" n"
+						rows.push(text)
+				else
+					if e.right
+						text = "e {"+e.source.id+"} {"+e.target.id+"} "
+						if e.rightType is "inhibitor"
+							text += "?-"
+						text += e.right+" n"
+						rows.push(text)
+					if e.left and e.left isnt e.right
+						text = "e {"+e.target.id+"} {"+e.source.id+"} "
+						if e.leftType is "inhibitor"
+							text += "?-"
+						text += e.left+" n"
+						rows.push(text)
+						
+			rows.push("h {"+net.name+"}" )
+			code += row + "\n" for row in rows
+			return code
+			
+			
 		# checks if the searchFor string is part of the searchIn string
 		@isPartOfString = (searchFor, searchIn) ->
 			searchIn.replace(searchFor, "") isnt searchIn

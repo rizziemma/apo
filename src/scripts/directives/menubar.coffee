@@ -57,7 +57,57 @@ class MenubarController extends Controller
 				targetEvent: event # To animate the dialog to/from the click
 			.then ->
 				netStorageService.deleteNet(net.name)
-
+				
+		@exportNet = (net, event) ->
+			formDialogService.runDialog({
+				title: "Export"
+				text: "Please choose a file format"
+				ok: "export"
+				event: event
+				formElements: [
+					{
+						type: "select"
+						name: ""
+						value: ""
+						chooseFrom: [
+							{name: "APT", value: "apt"},
+							{name: "ND", value: "ndr"}
+						]
+					}]})
+				.then (formElements) ->
+					if formElements
+						if formElements[0].value is ""
+							$mdDialog.show(
+								$mdDialog.alert
+									title: "Format Error"
+									textContent: "Couldn't import the net because no format selected"
+									ok: "OK"
+							)
+						else
+							formDialogService.runDialog({
+								title: "Export"
+								ok: "download"
+								cancel: false
+								event: event
+								outputElements: [
+									{
+										type: "code"
+										name: "Generated Code"
+										value: converterService.exportNet(net, formElements[0].value)
+									}
+								]
+								onComplete: () ->
+									element = document.createElement('a')
+									element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(converterService.exportNet(net, formElements[0].value)))
+									element.setAttribute('target', '_blank')
+									element.setAttribute('download', net.name + "."+formElements[0].value)
+									element.style.display = 'none'
+									document.body.appendChild(element)
+									element.click()
+									document.body.removeChild(element)
+									return false # do not close dialog after download
+							})
+					
 		@showAPT = (net, event) ->
 			formDialogService.runDialog({
 				title: "APT Export"
@@ -95,8 +145,8 @@ class MenubarController extends Controller
 						name: "Choose the file format"
 						value: ""
 						chooseFrom: [
-							{name: "APT", value: "APT"},
-							{name: "ND", value: "ND"}
+							{name: "APT", value: "apt"},
+							{name: "ND", value: "ndr"}
 						]
 					}
 					{
@@ -131,7 +181,7 @@ class MenubarController extends Controller
 						)
 				
 					# Normalize online?
-					else if formElements[3].value is true and $rootScope.online and formElements[0].value is "APT"
+					else if formElements[3].value is true and $rootScope.online and formElements[0].value is "apt"
 						apt.normalizeApt(formElements[2].value).then (response) ->
 							
 							if response.data.error
