@@ -22,10 +22,13 @@ class @Edge
 		sourceY = @source.y + sourcePadding * normY
 		targetX = @target.x - targetPadding * normX
 		targetY = @target.y - targetPadding * normY
-		middleX = (sourceX + targetX) / 2
-		middleY = (sourceY + targetY) / 2
-		'M' + sourceX + ',' + sourceY + 'L' + middleX + ',' + middleY + 'L' + targetX + ',' + targetY
-		
+		if @middle
+			#ADD CP
+			middleX = (sourceX + targetX) / 2
+			middleY = (sourceY + targetY) / 2
+			return 'M' + sourceX + ',' + sourceY + 'L' + middleX + ',' + middleY + 'L' + targetX + ',' + targetY
+		else
+			return  'M' + sourceX + ' ' + sourceY + ' , ' + targetX + ' ' + targetY
 	markerStart: ->
 		if @leftType is "inhibitor" and @source.type is "transition"
 			return 'url(#emptyCircle)'
@@ -54,3 +57,7 @@ class @Edge
 				else
 					return 'url(#startArrow)'
 		return ''
+		
+	inSubnet: () ->
+		return @source.inSelection or @target.inSelection
+	

@@ -51,6 +51,22 @@
 	}
 }
 
+.Select	{
+	.inSubnet {
+			stroke: #9999ff !important;
+			stroke-width: 4px;
+			stroke-dasharray: 10,5;
+		}
+	.node {
+		cursor: pointer;
+		&.inSelection {
+			stroke-dasharray: none !important;
+			stroke: #4d4dff !important;
+			stroke-width: 4px;
+			fill :  #e6e6ff;
+		}
+	}
+}
 // Token mode
 .Tokens {
 	.place {

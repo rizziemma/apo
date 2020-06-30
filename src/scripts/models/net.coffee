@@ -25,7 +25,10 @@ class @Net
 	addNode: (node) ->
 		if node.id is false
 			node.id = @getMaxNodeId()+1
-			node.label = ""+node.id
+			if node instanceof Place
+				node.label = "p"+node.id
+			if node instanceof Transition
+				node.label = "t"+node.id
 		@nodes.push(node)
 
 	deleteNode: (deleteNode) ->
@@ -92,3 +95,38 @@ class @Net
 	printCoordinates: ->
 		for node in @nodes
 			console.log ('"' + node.id + '": {"x":' + node.x/window.innerWidth + ', "y":' + node.y/window.innerHeight + '},')
+	
+	clone = (obj) ->
+		return obj  if obj is null or typeof (obj) isnt "object"
+		temp = new obj.constructor()
+		for key of obj
+			temp[key] = clone(obj[key])
+		temp
+		
+	inSubnet: (node) ->
+		return true if node.inSelection
+		for n in @getPreset(node).concat @getPostset(node)
+			return true if n.inSelection
+		return false
+		
+		
+	getSubnet: () ->
+		net = new Net({name: @name, tools: @tools})
+		#get selected nodes
+		for n in @nodes
+			if @inSubnet(n)
+				if n.type is "place"
+					n = new Place(n)
+				else
+					n = new Transition(n)
+				
+				net.addNode(n)
+				
+		for e in @edges
+			if e.source.inSelection or e.target.inSelection
+				source = net.getNodeById(e.source.id)
+				target = net.getNodeById(e.target.id)
+				edge = new Edge({source: source, target: target, id: e.id, left: e.left, right: e.right, leftType: e.leftType, rightType: e.rightType})
+				net.addEdge(edge)
+		return net
+

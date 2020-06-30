@@ -30,7 +30,13 @@ class Editor extends Controller
 				else
 					nodes.on('mousedown.drag', null)
 					nodes.on('touchstart.drag', null)
-
+					
+				if net.getActiveTool().name is "Select"
+					#reset selection of nodes on changing tools
+					for n in net.nodes
+						n.inSelection = false
+				
+				restart()
 			# Delte net via the error card
 			$scope.deleteNet = () -> netStorageService.deleteNet(net.name)
 			
@@ -53,9 +59,34 @@ class Editor extends Controller
 					
 			d3.select('#main-canvas svg').call(zoom).call(zoom.event)
 				
+			#button reset zoom
 			$scope.resetZoom = () ->
 				svg.selectAll('g').attr('transform', 'translate([0, 0]) scale(1)')
-				
+			
+			#button extract Subnet
+			$scope.extractSubnet = () ->
+				formDialogService.runDialog({
+					title: "Extract Subnet"
+					text: "Enter a name for the new Subnet"
+					formElements: [
+						{
+						name: "Name"
+						type: "text"
+						value: "Subnet of #{net.name}"
+						validation: (name) ->
+							return "The name can't contain \"" if name and name.replace("\"", "") isnt name
+							return "A net with this name already exists" if name and netStorageService.getNetByName(name)
+							return true
+					}
+					]
+				})
+				.then (formElements) ->
+					if formElements
+						newNet = net.getSubnet()
+						newNet.name = formElements[0].value
+						netStorageService.addNet(newNet)
+						
+						
 			# mouse event vars
 			selectedNode = null
 			mouseDownEdge = null
@@ -98,6 +129,7 @@ class Editor extends Controller
 				edges.style('marker-start', (edge) -> edge = new Edge(edge); edge.markerStart())
 				edges.style('marker-end', (edge) -> edge = new Edge(edge); edge.markerEnd())
 				edges.style('marker-mid', (edge) -> edge = new Edge(edge); edge.markerMid(net.type))
+				edges.classed('inSubnet', (edge) -> edge = new Edge(edge); edge.inSubnet())
 				# update existing edge labels
 				d3.selectAll('.edgeLabel .text').text((edge) -> converterService.getEdgeFromData(edge).getText())
 
@@ -114,6 +146,7 @@ class Editor extends Controller
 					.style('marker-mid', (edge) -> edge = new Edge(edge); edge.markerMid(net.type))
 					.attr('id', (edge) -> edge.id)
 					.classed('edge', true)
+					.classed('inSubnet', (edge) -> edge = new Edge(edge);  edge.inSubnet())
 					.on 'mousedown', (edge) ->
 						mouseDownEdge = edge
 						selectedNode = null
@@ -130,6 +163,8 @@ class Editor extends Controller
 
 				# update existing nodes
 				nodes.selectAll('.node').classed('firable', (node) ->  net.isFirable(node))
+				nodes.selectAll('.node').classed('inSelection', (node) -> node.inSelection)
+				nodes.selectAll('.node').classed('inSubnet', (node) -> net.inSubnet(node))
 
 				# update existing node labels
 				d3.selectAll('.nodeLabel').text((node) -> converterService.getNodeFromData(node).getText())
@@ -145,6 +180,8 @@ class Editor extends Controller
 				.attr('width', (node) -> node.width)
 				.attr('height', (node) -> node.height)
 				.classed('firable', (node) ->  net.isFirable(node))
+				.classed('inSelection', (node) -> node.inSelection)
+				.classed('inSubnet', (node) -> net.inSubnet(node))
 				.on 'mouseover', (node) ->
 					return if !mouseDownNode or node == mouseDownNode or !net.isConnectable(mouseDownNode, node)
 					d3.select(this).style('fill', 'rgb(235, 235, 235)') # highlight target node

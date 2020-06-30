@@ -21,3 +21,5 @@ class @Node extends @Point
 	getSelfEdgePath: -> ""
 
 	getSelfEdgeText: -> ""
+
+	

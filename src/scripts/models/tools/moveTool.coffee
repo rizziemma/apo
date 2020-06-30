@@ -7,7 +7,7 @@ class @MoveTool extends @Tool
 	constructor: ->
 		super()
 		@name = "Fix Nodes"
-		@icon = "gps_fixed"
+		@icon = "pan_tool"
 		@description = "Move nodes to fix their position. Double click to free them."
 		@draggable = true
 

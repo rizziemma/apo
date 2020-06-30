@@ -16,6 +16,7 @@ class @PetriNet extends @Net
 			new TokenTool()
 			new DeleteTool()
 			new LabelPnTool()
+			new SelectTool()
 			new ZoomTool()
 		])
 

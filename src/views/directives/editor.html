@@ -2,6 +2,9 @@
 	<md-button ng-if="net.activeTool == 'Zoom'" class="md-primary" ng-click="resetZoom()" style="position: absolute; right:0; bottom: 0;z-index: 10;">
 		reset zoom
 	</md-button>
+	<md-button ng-if="net.activeTool == 'Select'" class="md-primary" ng-click="extractSubnet()" style="position: absolute; right:0; bottom: 0;z-index: 10;">
+		extract subnet
+	</md-button>
 	<topbar></topbar>
 	<menubar></menubar>
 	<toolbar></toolbar>
