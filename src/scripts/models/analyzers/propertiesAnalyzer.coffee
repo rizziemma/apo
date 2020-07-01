@@ -54,7 +54,6 @@ class @PropertiesNetAnalyzer extends @Analyzer
 				node.x = point["x"]*window.innerWidth
 				node.y = point["y"]*window.innerHeight
 		netStorageService.addNet(graphPPN)
-		console.log "width : " + window.innerWidth + "height : " + window.innerHeight
 		
 	@loadFile = (analyzer, file, prop, toEval) ->
 		req = new XMLHttpRequest()

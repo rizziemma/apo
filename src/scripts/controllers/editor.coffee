@@ -132,13 +132,20 @@ class Editor extends Controller
 				edges.classed('inSubnet', (edge) -> edge = new Edge(edge); edge.inSubnet())
 				# update existing edge labels
 				d3.selectAll('.edgeLabel .text').text((edge) -> converterService.getEdgeFromData(edge).getText())
-
+				d3.selectAll('.arrowmid .text').text((edge) -> converterService.getEdgeFromData(edge).markerMid(net.type))
 				# add edge labels
 				edges.enter().append('svg:text').attr('dy', -8).attr('class', 'label edgeLabel')
 				.attr('id', (edge) -> 'edgeLabel-' + edge.id)
 				.append('textPath').attr('startOffset', '50%').attr('class', 'text')
 				.attr('xlink:href', (edge) -> '#' + edge.id).text((edge) -> converterService.getEdgeFromData(edge).getText())
 
+				#add arrows on middle of edges
+				edges.enter().append('svg:text').attr('dy', +5).attr('class', 'arrowmid')
+				.append('textPath').attr('startOffset', '40%').attr('class', 'text')
+				.attr('style', 'fill:#999999; font-size: 20px;')
+				.attr('xlink:href', (edge) -> '#' + edge.id).text((edge) -> converterService.getEdgeFromData(edge).markerMid(net.type))
+				
+				
 				# add new egdes
 				edges.enter().append('svg:path').attr('class', 'link')
 					.style('marker-start', (edge) -> edge = new Edge(edge); edge.markerStart())

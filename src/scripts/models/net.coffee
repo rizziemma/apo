@@ -115,11 +115,7 @@ class @Net
 		#get selected nodes
 		for n in @nodes
 			if @inSubnet(n)
-				if n.type is "place"
-					n = new Place(n)
-				else
-					n = new Transition(n)
-				
+				n = clone(n)
 				net.addNode(n)
 				
 		for e in @edges
