@@ -5,7 +5,7 @@
 
 class @Net
 	constructor: (netObject = {}) ->
-		{@name = "", @nodes = [], @edges = [], @tools = []} = netObject
+		{@name = "", @nodes = [], @edges = [], @tools = [], @controlpoints=[]} = netObject
 
 	setTools: (@tools) ->
 		@activeTool = @tools[0].name if not @activeTool and @tools.length > 0
@@ -14,6 +14,13 @@ class @Net
 
 	addEdge: (edge) ->
 		edge.id = @getMaxEdgeId()+1
+		if not edge.curvedPath
+			maxId = @getMaxCpId()
+			cp1 = new ControlPoint({id:maxId+1})
+			cp2 = new ControlPoint({id:maxId+2})
+			@controlpoints.push(cp1)
+			@controlpoints.push(cp2)
+			edge.cp = [cp1,cp2]
 		@edges.push(edge)
 
 	deleteEdge: (deleteEdge) ->
@@ -89,7 +96,16 @@ class @Net
 		for edge in @edges when (edge.id > maxId)
 			maxId = edge.id
 		maxId
+		
+	getMaxCpId: ->
+		maxId = -1
+		for cp in @controlpoints when (cp.id > maxId)
+			maxId = cp.id
+		maxId
 
+	getEdgeByCp: (cp) ->
+		return edge for edge in @edges when (cp.id is edge.cp[0].id or cp.id is edge.cp[1].id)
+		return false
 	isFirable: (node) -> false
 	
 	printCoordinates: ->

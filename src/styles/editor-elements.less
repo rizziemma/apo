@@ -45,8 +45,30 @@
 	}
 }
 
+.cp {
+	fill: #80ff80;
+	stroke: #00cc00;
+	stroke-width: 1.5px;
+	&.hidden{
+		stroke-width:0px;
+		radius: 0;
+		fill: none;
+	}
+}
+
+.cpedge{
+	stroke: #00cc00;
+	stroke-width: 1.5px;
+	&.hidden{
+		stroke-width:0px;
+		fill: none;
+	}
+}
 .Fix.Nodes {
 	.node {
+		cursor: move;
+	}
+	.cp{
 		cursor: move;
 	}
 }

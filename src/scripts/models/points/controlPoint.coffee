@@ -5,6 +5,7 @@
 class @ControlPoint extends @Point
 	constructor: (options) ->
 		super(options)
-		{@x=0, @y=0} = options
+		{@id=false} = options
 		@shape = 'circle'
 		@radius = 10
+		@fixed = true

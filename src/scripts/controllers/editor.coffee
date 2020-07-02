@@ -27,10 +27,15 @@ class Editor extends Controller
 			$scope.$watch 'net.activeTool', ->
 				if net.getActiveTool().draggable # drag and drop
 					nodes.call(drag)
+					cp.call(drag)
 				else
 					nodes.on('mousedown.drag', null)
 					nodes.on('touchstart.drag', null)
+					cp.on('mousedown.drag', null)
+					cp.on('touchstart.drag', null)
 					
+				for e in net.edges
+					e.editCp = false
 				if net.getActiveTool().name is "Select"
 					#reset selection of nodes on changing tools
 					for n in net.nodes
@@ -43,13 +48,16 @@ class Editor extends Controller
 
 			svg = d3.select('#main-canvas svg')
 			force = d3.layout.force()
+			force.nodes({})
 			drag = force.drag()
 			colors = d3.scale.category10()
 			dragLine = svg.select('svg .dragline')
 			edges = svg.append('svg:g').selectAll('.edge')
 			nodes = svg.append('svg:g').selectAll('g')
+			cpedge = svg.append('svg:g').selectAll('.cpedge')
+			cp = svg.append('svg:g').selectAll('.cp')
 			
-    		
+			
 			zoomed = ->
 				if net.getActiveTool() instanceof ZoomTool
 					svg.selectAll('g').attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
@@ -117,12 +125,26 @@ class Editor extends Controller
 				edges.attr 'd', (edge) ->
 					edge = new Edge(edge)
 					edge.getPath()
+				cpedge.attr 'd', (cp) ->
+					edge = net.getEdgeByCp(cp)
+					if cp.id is edge.cp[0].id
+						return 'M'+edge.source.x + ',' + edge.source.y + ' L' + cp.x + ',' + cp.y
+					else
+						return 'M'+edge.target.x + ',' + edge.target.y + ' L' + cp.x + ',' + cp.y
+						
 				nodes.attr 'transform', (d) ->
+					'translate(' + d.x + ',' + d.y + ')'
+				cp.attr 'transform', (d) ->
 					'translate(' + d.x + ',' + d.y + ')'
 				
 			# update graph layout (called when needed)
 			restart = ->
+				
+				force.nodes(net.nodes.concat net.controlpoints)
+
 				#net.printCoordinates()
+				
+				
 				edges = edges.data(net.edges)
 
 				# update existing links
@@ -166,6 +188,7 @@ class Editor extends Controller
 				# remove old links
 				edges.exit().each((edge) -> d3.selectAll('#edgeLabel-' + edge.id).remove()).remove()
 
+				
 				nodes = nodes.data(net.nodes, (node) -> node.id)
 
 				# update existing nodes
@@ -266,8 +289,45 @@ class Editor extends Controller
 					.text((node) -> converterService.getNodeFromData(node).getSelfEdgeText())
 
 				nodes.exit().remove() # remove old nodes
+				
+				
+				
+				#add control points
+				cp = cp.data(net.controlpoints)
+				#update existing cp
+				d3.selectAll('.cp').classed('hidden', (cp)->not (net.getEdgeByCp(cp).editCp and net.getActiveTool().name is "Fix Nodes") )
+				
+				newCp = cp.enter().append('svg:g')
+				newCp.append((cp)-> document.createElementNS("http://www.w3.org/2000/svg", cp.shape))
+				.attr('class', 'cp')
+				.attr('r', (cp) -> cp.radius)
+				.classed('hidden', (cp)->not (net.getEdgeByCp(cp).editCp  and net.getActiveTool().name is "Fix Nodes"))
+				.on 'mousedown', (cp) ->
+					mouseDownNode = cp
+					if mouseDownNode == selectedNode
+						selectedNode = null
+					else
+						selectedNode = mouseDownNode
+					net.getActiveTool().mouseDownOnCp(net, mouseDownNode, dragLine, formDialogService, restart, converterService)
+					$scope.$apply() # Quick save net to storage
+					restart()
+				.on 'dblclick', (cp) ->
+					net.getActiveTool().dblClickOnCp(net, cp)
+					restart()
+				cp.exit().remove()
+				
+				cpedge = cpedge.data(net.controlpoints)
+				d3.selectAll('.cpedge').classed('hidden', (cp)->not (net.getEdgeByCp(cp).editCp and net.getActiveTool().name is "Fix Nodes") )
+				cpedge.enter().append('svg:path')
+				.attr('class', 'cpedge')
+				.classed('hidden', (cp)->not (net.getEdgeByCp(cp).editCp and net.getActiveTool().name is "Fix Nodes") )
+				cpedge.exit().remove()
+				
+				
+				
 				force.start() # set the graph in motion
-
+				
+				
 			mousedown = ->
 				svg.classed 'active', true
 				return if mouseDownNode or mouseDownEdge
@@ -291,7 +351,7 @@ class Editor extends Controller
 				resetMouseVars()
 
 			# init D3 force layout
-			force = force.nodes(net.nodes).links(net.edges).size([
+			force = force.links(net.edges).size([
 				if window.innerWidth > 960 then window.innerWidth - 245 else window.innerWidth
 				window.innerHeight + 80
 			])
