@@ -216,6 +216,9 @@ class @PetriNet extends @Net
 			if e.source.inSelection or e.target.inSelection
 				source = net.getNodeById(e.source.id)
 				target = net.getNodeById(e.target.id)
-				edge = new Edge({source: source, target: target, id: e.id, left: e.left, right: e.right, leftType: e.leftType, rightType: e.rightType})
+				cp = false
+				if e.curvedPath
+					cp = clone(e.cp)
+				edge = new Edge({source: source, target: target, id: e.id, left: e.left, right: e.right, leftType: e.leftType, rightType: e.rightType, curvedPath: e.curvedPath, cp: cp})
 				net.addEdge(edge)
 		return net

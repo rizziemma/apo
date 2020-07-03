@@ -15,8 +15,8 @@ class @Net
 	addEdge: (edge) ->
 		edge.id = @getMaxEdgeId()+1
 		if not edge.curvedPath
-			cp1 = new ControlPoint({})
-			cp2 = new ControlPoint({})
+			cp1 = new ControlPoint()
+			cp2 = new ControlPoint()
 			edge.cp = [cp1,cp2]
 		edge.cp[0].id = @getMaxCpId()+1 if not edge.cp[0].id
 		@controlpoints.push(edge.cp[0])
