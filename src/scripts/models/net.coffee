@@ -15,12 +15,14 @@ class @Net
 	addEdge: (edge) ->
 		edge.id = @getMaxEdgeId()+1
 		if not edge.curvedPath
-			maxId = @getMaxCpId()
-			cp1 = new ControlPoint({id:maxId+1})
-			cp2 = new ControlPoint({id:maxId+2})
-			@controlpoints.push(cp1)
-			@controlpoints.push(cp2)
+			cp1 = new ControlPoint({})
+			cp2 = new ControlPoint({})
 			edge.cp = [cp1,cp2]
+		edge.cp[0].id = @getMaxCpId()+1 if not edge.cp[0].id
+		@controlpoints.push(edge.cp[0])
+		edge.cp[1].id = @getMaxCpId()+1 if not edge.cp[1].id
+		@controlpoints.push(edge.cp[1])
+		
 		@edges.push(edge)
 
 	deleteEdge: (deleteEdge) ->

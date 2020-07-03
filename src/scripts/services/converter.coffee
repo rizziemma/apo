@@ -352,9 +352,9 @@ class Converter extends Service
 			
 			
 		@getNetFromNd = (ndCode) ->
-			place_reg = /p ([^ ]*) ([^ ]*) (\{([^\}]*)\}|([^ ]*)) ([^ ]*) .[^ ]?( (\{(.*)\}|([^ ]*)) .[^ ]?)?/
-			transition_reg = /t ([^ ]*) ([^ ]*) (\{([^\}]*)\}|([^ ]*)) (. [^ ]* [^ ]* .[^ ]? (\{(.*)\}|([^ ]*)) .[^ ]?|[^ ]* [^ ]* .[^ ]?)/
-			edge_reg = /e (\{([^\}]*)\}|([^ ]*)) (\{([^\}]*)\}|([^ ]*))( \?\-| \?| )([^ ]*) .[^ ]?/
+			place_reg = /p ([\d\.]*) ([\d\.]*) (\{([^\}]*)\}|([\S]*)) ([\d\.]*) .[\S]?( (\{(.*)\}|([\S]*)) .[\S]?)?/
+			transition_reg = /t ([\d\.]*) ([\d\.]*) (\{([^\}]*)\}|([\S]*)) (. [\d\.]* [\S]* .[\S]? (\{(.*)\}|([\S]*)) .[\S]?|[\S]* [\S]* .[\S]?)/
+			edge_reg = /e (\{([^\}]*)\}|([\S]*)) (([\d\.]*) ([\d\.]*) )?(\{([^\}]*)\}|([\S]*))(( [\d\.]*)( [\d\.]*))?( \?\-| \?| )([\d\.]*) .[\S]?/
 			title_reg = /h (\{([^\}]*)\}|([^ ]*))/
 			try
 				net = new PetriNet()
@@ -377,10 +377,13 @@ class Converter extends Service
 							transition.fixed = true
 							net.addNode(transition)
 						when "e"
-							[pad, pad, s_id1, s_id2, pad, t_id1, t_id2, type, weight] = edge_reg.exec(line)
+							[pad, pad, s_id1, s_id2, pad, ang1, rad1, pad, t_id1, t_id2, pad, ang2, rad2, type, weight] = edge_reg.exec(line)
 							source = net.getNodeById(if s_id1 then s_id1 else s_id2)
 							target = net.getNodeById(if t_id1 then t_id1 else t_id2)
 							weight = parseInt(weight, 10)
+							for e in [ang1, rad1, ang2, rad2]
+								if e?
+									e = parseInt(e, 10)
 							if @isPartOfString("?-", type)
 								type = "inhibitor"
 							else if @isPartOfString("?", type)
@@ -415,13 +418,22 @@ class Converter extends Service
 										edge.right += weight
 										edge.rightType = "normal"
 										leftDone = true
-										
+							cp = false
+							curvedPath = false
+							if rad1? and rad2? and ang1? and ang2?
+								ang1 = ang1*2*Math.PI
+								ang2 = ang2*2*Math.PI
+								cp = [new ControlPoint({x: source.x + (rad1 * Math.cos(ang1)), y: source.y - (rad1 * Math.sin(ang1))}),
+								new ControlPoint({x: target.x + (rad2 * Math.cos(ang2)), y: target.y - (rad2 * Math.sin(ang2))})]
+								console.log cp
+								curvedPath = true
+
 							if not rightDone and not leftDone
-								net.addEdge(new Edge({source: source, target: target, right : weight, left : weight}))
+								net.addEdge(new Edge({source: source, target: target, right : weight, left : weight, cp : cp, curvedPath : curvedPath}))
 							else if not rightDone
-								net.addEdge(new Edge({source: source, target: target, right : weight, rightType: if type isnt"readArc" then type else "normal"}))
+								net.addEdge(new Edge({source: source, target: target, right : weight, rightType: (if type isnt"readArc" then type else "normal"), cp : cp, curvedPath : curvedPath}))
 							else if not leftDone
-								net.addEdge(new Edge({source: target, target: source, right : weight, rightType: if type isnt"readArc" then type else "normal"}))
+								net.addEdge(new Edge({source: target, target: source, right : weight, rightType: (if type isnt"readArc" then type else "normal"), cp : cp, curvedPath : curvedPath}))
 						when "h"
 							[pad1, n1, n2] = title_reg.exec(line)
 							net.name = if n1 then n1 else n2
@@ -434,6 +446,18 @@ class Converter extends Service
 				return false
 			return net
 		
+		@getPolar = (point, ref) ->
+			x = (point.x - ref.x)
+			y = -(point.y - ref.y)
+			#[ang, rad]
+			tours = Math.atan(y/x)/(2*Math.PI)
+			if x>=0 and y<=0
+				tours = tours + 1
+			else if x < 0
+				tours = tours+0.5
+			return [tours, Math.sqrt(x*x + y*y)]
+
+
 		@getNdFromNet = (net) ->
 			code = ""
 			rows = []
@@ -449,26 +473,32 @@ class Converter extends Service
 					if n.label and n.label is n.id
 						text += " c 0 w n {"+n.label+"} ne"
 					else
-						text += "0 w n"
+						text += " 0 w n"
 				rows.push(text)
 				
 			for e in net.edges
+				cp1 = ["",""]
+				cp2 = ["",""]
+				if e.curvedPath
+					cp1 = @getPolar(e.cp[0], e.source)
+					cp2 = @getPolar(e.cp[1], e.target)
+
 				if e.right is e.left #read arc
 					if e.target.type is "transition"
-						text = "e {"+e.source.id+"} {"+e.target.id+"} ?"+e.right+" n"
+						text = "e {"+e.source.id+"} "+cp1[0]+" "+cp1[1]+" {"+e.target.id+"} "+cp2[0]+" "+cp2[1]+" ?"+e.right+" n"
 						rows.push(text)
 					else
-						text = "e {"+e.target.id+"} {"+e.source.id+"} ?"+e.right+" n"
+						text = "e {"+e.target.id+"} "+cp1[0]+" "+cp1[1]+" {"+e.source.id+"} "+cp2[0]+" "+cp2[1]+" ?"+e.right+" n"
 						rows.push(text)
 				else
 					if e.right
-						text = "e {"+e.source.id+"} {"+e.target.id+"} "
+						text = "e {"+e.source.id+"} "+cp1[0]+" "+cp1[1]+" {"+e.target.id+"} "+cp2[0]+" "+cp2[1]+" "
 						if e.rightType is "inhibitor"
 							text += "?-"
 						text += e.right+" n"
 						rows.push(text)
 					if e.left and e.left isnt e.right
-						text = "e {"+e.target.id+"} {"+e.source.id+"} "
+						text = "e {"+e.target.id+"} "+cp1[0]+" "+cp1[1]+" {"+e.source.id+"} "+cp2[0]+" "+cp2[1]+" "
 						if e.leftType is "inhibitor"
 							text += "?-"
 						text += e.left+" n"
