@@ -128,19 +128,4 @@ class @Net
 		return false
 		
 		
-	getSubnet: () ->
-		net = new Net({name: @name, tools: @tools})
-		#get selected nodes
-		for n in @nodes
-			if @inSubnet(n)
-				n = clone(n)
-				net.addNode(n)
-				
-		for e in @edges
-			if e.source.inSelection or e.target.inSelection
-				source = net.getNodeById(e.source.id)
-				target = net.getNodeById(e.target.id)
-				edge = new Edge({source: source, target: target, id: e.id, left: e.left, right: e.right, leftType: e.leftType, rightType: e.rightType})
-				net.addEdge(edge)
-		return net
 

@@ -13,6 +13,11 @@ class @SelectTool extends @Tool
 	mouseDownOnNode: (net, node) ->
 		if node.inSelection
 			node.inSelection = false
+			if node.shared
+				for p in net.getNodesByLabel(node.label)
+					p.inSelection = false
 		else
 			node.inSelection = true
-			
+			if node.shared
+				for p in net.getNodesByLabel(node.label)
+					p.inSelection = true
