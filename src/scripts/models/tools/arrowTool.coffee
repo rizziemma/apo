@@ -22,19 +22,19 @@ class @ArrowTool extends @Tool
 		if mouseUpNode == mouseDownNode
 			return
 
-		for edge in net.edges when edge.source is mouseDownNode and edge.target is mouseUpNode
+		for edge in net.edges when edge.source is mouseDownNode and edge.target is mouseUpNode and edge.rightType is "normal"
 			existingEdge = edge
 		if existingEdge
-			existingEdge.right = 1
+			existingEdge.right += 1
 		else
-			for edge in net.edges when edge.source is mouseUpNode and edge.target is mouseDownNode
+			for edge in net.edges when edge.source is mouseUpNode and edge.target is mouseDownNode and edge.leftType is "normal"
 				existingEdge = edge
-		if existingEdge
-			existingEdge.left = 1
-		else
-			if net.isConnectable(mouseDownNode, mouseUpNode)
-				if net.type is "pn"
-					edge = new PnEdge({source: mouseDownNode, target: mouseUpNode, right: 1})
-				else
-					edge = new TsEdge({source: mouseDownNode, target: mouseUpNode, right: 1})
-				net.addEdge(edge)
+			if existingEdge
+				existingEdge.left += 1
+			else
+				if net.isConnectable(mouseDownNode, mouseUpNode)
+					if net.type is "pn"
+						edge = new PnEdge({source: mouseDownNode, target: mouseUpNode, right: 1})
+					else
+						edge = new TsEdge({source: mouseDownNode, target: mouseUpNode, right: 1})
+					net.addEdge(edge)
