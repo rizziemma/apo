@@ -3,9 +3,10 @@
 ###
 
 class @ControlPoint extends @Point
-	constructor: (options) ->
+	constructor: (options = {}) ->
 		super(options)
 		{@id=false} = options
 		@shape = 'circle'
 		@radius = 10
 		@fixed = true
+		@connectableTypes = []

@@ -107,6 +107,48 @@ class @ExaminePn2 extends @Analyzer
 			if post.length > 1
 				return false for t in post when (net.getPreset(t)).length > 1
 		return true
+	
+	#is S a siphon in net
+	isSiphon: (net, S) ->
+		if S.length <= 0
+			return "Empty"
+			
+		siphon = true
+		for place in S
+			preT = net.getPreset(place)
+			if preT.length > 0
+				siphon = false
+				for t in preT
+					preP = net.getPreset(t)
+					for p in preP
+						if p in S
+							siphon = true
+							break
+				return false if not siphon
+		return siphon
+	
+	#is T a trap in net
+	isTrap: (net, T)	->
+		if T.length <= 0
+			return "Empty"
+			
+		trap = true
+		for place in T
+			postT = net.getPostset(place)
+			if postT.length > 0
+				trap = false
+				for t in postT
+					postP = net.getPostset(t)
+					for p in postP
+						if p in T
+							trap = true
+							break
+				return false if not trap
+		return trap
+		
+	isUnmarked: (net) ->
+		return false for p in net.nodes when (p.type is "place" and p.inSelection and p.tokens > 0)
+		return true
 		
 	runTests: (net) ->
 		tests = []

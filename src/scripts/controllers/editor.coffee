@@ -16,6 +16,7 @@ class Editor extends Controller
 			gravity = 0.1
 
 			net = netStorageService.getNetByName(decodeURI($stateParams.name))
+			
 			# Go to first net if not found
 			if not net
 				$state.go "editor", name: netStorageService.getNets()[0].name
@@ -39,7 +40,7 @@ class Editor extends Controller
 				if net.getActiveTool().name is "Select"
 					#reset selection of nodes on changing tools
 					for n in net.nodes
-						n.inSelection = false
+						n.selected = false
 				
 				restart()
 			# Delte net via the error card
@@ -61,7 +62,6 @@ class Editor extends Controller
 			zoomed = ->
 				if net.getActiveTool() instanceof ZoomTool
 					svg.selectAll('g').attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
-						
 			zoom = d3.behavior.zoom()
 				.on("zoom", -> zoomed())
 					
@@ -71,30 +71,14 @@ class Editor extends Controller
 			$scope.resetZoom = () ->
 				svg.selectAll('g').attr('transform', 'translate([0, 0]) scale(1)')
 			
-			#button extract Subnet
+			#buttons Subnet
 			$scope.extractSubnet = () ->
-				formDialogService.runDialog({
-					title: "Extract Subnet"
-					text: "Enter a name for the new Subnet"
-					formElements: [
-						{
-						name: "Name"
-						type: "text"
-						value: "Subnet of #{net.name}"
-						validation: (name) ->
-							return "The name can't contain \"" if name and name.replace("\"", "") isnt name
-							return "A net with this name already exists" if name and netStorageService.getNetByName(name)
-							return true
-					}
-					]
-				})
-				.then (formElements) ->
-					if formElements
-						newNet = net.getSubnet()
-						newNet.name = formElements[0].value
-						netStorageService.addNet(newNet)
+				net.getActiveTool().extractSubnet(formDialogService, netStorageService, net)
 						
-						
+			$scope.analyzeSubnet = (event) ->
+				analyzer = new ExamineSubPn()
+				analyzer.run(false, netStorageService, converterService, net, formDialogService, event, false)
+				
 			# mouse event vars
 			selectedNode = null
 			mouseDownEdge = null
@@ -127,11 +111,13 @@ class Editor extends Controller
 					edge.getPath()
 				cpedge.attr 'd', (cp) ->
 					edge = net.getEdgeByCp(cp)
-					if cp.id is edge.cp[0].id
-						return 'M'+edge.source.x + ',' + edge.source.y + ' L' + cp.x + ',' + cp.y
+					if edge
+						if cp.id is edge.cp[0].id
+							return 'M'+edge.source.x + ',' + edge.source.y + ' L' + cp.x + ',' + cp.y
+						else
+							return 'M'+edge.target.x + ',' + edge.target.y + ' L' + cp.x + ',' + cp.y
 					else
-						return 'M'+edge.target.x + ',' + edge.target.y + ' L' + cp.x + ',' + cp.y
-						
+						return ''
 				nodes.attr 'transform', (d) ->
 					'translate(' + d.x + ',' + d.y + ')'
 				cp.attr 'transform', (d) ->
@@ -140,7 +126,7 @@ class Editor extends Controller
 			# update graph layout (called when needed)
 			restart = ->
 				
-				force.nodes(net.nodes.concat net.controlpoints)
+				force.nodes(net.nodes.concat net.controlPoints())
 
 				#net.printCoordinates()
 				
@@ -150,7 +136,7 @@ class Editor extends Controller
 				# update existing links
 				edges.style('marker-start', (edge) -> edge = new Edge(edge); edge.markerStart())
 				edges.style('marker-end', (edge) -> edge = new Edge(edge); edge.markerEnd())
-				edges.style('marker-mid', (edge) -> edge = new Edge(edge); edge.markerMid(net.type))
+				#edges.style('marker-mid', (edge) -> edge = new Edge(edge); edge.markerMid(net.type))
 				edges.classed('inSubnet', (edge) -> edge = new Edge(edge); edge.inSubnet())
 				# update existing edge labels
 				d3.selectAll('.edgeLabel .text').text((edge) -> converterService.getEdgeFromData(edge).getText())
@@ -172,7 +158,7 @@ class Editor extends Controller
 				edges.enter().append('svg:path').attr('class', 'link')
 					.style('marker-start', (edge) -> edge = new Edge(edge); edge.markerStart())
 					.style('marker-end', (edge) -> edge = new Edge(edge); edge.markerEnd())
-					.style('marker-mid', (edge) -> edge = new Edge(edge); edge.markerMid(net.type))
+					#.style('marker-mid', (edge) -> edge = new Edge(edge); edge.markerMid(net.type))
 					.attr('id', (edge) -> edge.id)
 					.classed('edge', true)
 					.classed('inSubnet', (edge) -> edge = new Edge(edge);  edge.inSubnet())
@@ -193,7 +179,7 @@ class Editor extends Controller
 
 				# update existing nodes
 				nodes.selectAll('.node').classed('firable', (node) ->  net.isFirable(node))
-				nodes.selectAll('.node').classed('inSelection', (node) -> node.inSelection)
+				nodes.selectAll('.node').classed('selected', (node) -> node.selected)
 				nodes.selectAll('.node').classed('inSubnet', (node) -> net.inSubnet(node))
 
 				# update existing node labels
@@ -210,7 +196,7 @@ class Editor extends Controller
 				.attr('width', (node) -> node.width)
 				.attr('height', (node) -> node.height)
 				.classed('firable', (node) ->  net.isFirable(node))
-				.classed('inSelection', (node) -> node.inSelection)
+				.classed('selected', (node) -> node.selected)
 				.classed('inSubnet', (node) -> net.inSubnet(node))
 				.on 'mouseover', (node) ->
 					return if !mouseDownNode or node == mouseDownNode or !net.isConnectable(mouseDownNode, node)
@@ -293,7 +279,7 @@ class Editor extends Controller
 				
 				
 				#add control points
-				cp = cp.data(net.controlpoints)
+				cp = cp.data(net.controlPoints())
 				#update existing cp
 				d3.selectAll('.cp').classed('hidden', (cp)->not (net.getEdgeByCp(cp).editCp and net.getActiveTool().name is "Fix Nodes") )
 				
@@ -316,7 +302,7 @@ class Editor extends Controller
 					restart()
 				cp.exit().remove()
 				
-				cpedge = cpedge.data(net.controlpoints)
+				cpedge = cpedge.data(net.controlPoints())
 				d3.selectAll('.cpedge').classed('hidden', (cp)->not (net.getEdgeByCp(cp).editCp and net.getActiveTool().name is "Fix Nodes") )
 				cpedge.enter().append('svg:path')
 				.attr('class', 'cpedge')

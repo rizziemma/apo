@@ -5,7 +5,7 @@
 
 class @Net
 	constructor: (netObject = {}) ->
-		{@name = "", @nodes = [], @edges = [], @tools = [], @controlpoints=[]} = netObject
+		{@name = "", @nodes = [], @edges = [], @tools = []} = netObject
 
 	setTools: (@tools) ->
 		@activeTool = @tools[0].name if not @activeTool and @tools.length > 0
@@ -18,10 +18,9 @@ class @Net
 			cp1 = new ControlPoint()
 			cp2 = new ControlPoint()
 			edge.cp = [cp1,cp2]
-		edge.cp[0].id = @getMaxCpId()+1 if not edge.cp[0].id
-		@controlpoints.push(edge.cp[0])
-		edge.cp[1].id = @getMaxCpId()+1 if not edge.cp[1].id
-		@controlpoints.push(edge.cp[1])
+		maxId = @getMaxCpId()
+		edge.cp[0].id = maxId+1
+		edge.cp[1].id = maxId+2
 		
 		@edges.push(edge)
 
@@ -101,7 +100,7 @@ class @Net
 		
 	getMaxCpId: ->
 		maxId = -1
-		for cp in @controlpoints when (cp.id > maxId)
+		for cp in @controlPoints() when (cp.id > maxId)
 			maxId = cp.id
 		maxId
 
@@ -122,10 +121,16 @@ class @Net
 		temp
 		
 	inSubnet: (node) ->
-		return true if node.inSelection
+		return true if node.selected
 		for n in @getPreset(node).concat @getPostset(node)
-			return true if n.inSelection
+			return true if n.selected
 		return false
 		
 		
 
+	controlPoints: ->
+		cp = []
+		for e in @edges
+			cp.push e.cp[0]
+			cp.push e.cp[1]
+		return cp

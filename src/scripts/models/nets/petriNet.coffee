@@ -213,7 +213,7 @@ class @PetriNet extends @Net
 				net.addNode(n)
 				
 		for e in @edges
-			if e.source.inSelection or e.target.inSelection
+			if e.source.selected or e.target.selected
 				source = net.getNodeById(e.source.id)
 				target = net.getNodeById(e.target.id)
 				cp = false

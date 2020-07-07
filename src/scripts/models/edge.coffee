@@ -89,5 +89,5 @@ class @Edge
 		return ''
 		
 	inSubnet: () ->
-		return @source.inSelection or @target.inSelection
+		return @source.selected or @target.selected
 	
