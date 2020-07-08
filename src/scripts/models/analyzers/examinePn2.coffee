@@ -176,6 +176,7 @@ class @ExaminePn2 extends @Analyzer
 		net = currentNet.getNetWithNoSharedPlaces()
 		# print tests
 		for test in @runTests(net)
+			result = test.result
 			result = "Yes" if test.result is true
 			result = "No" if test.result is false
 			outputElements.push(
