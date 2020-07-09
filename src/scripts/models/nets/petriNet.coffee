@@ -28,6 +28,10 @@ class @PetriNet extends @Net
 			new PropertiesNetAnalyzer()
 		])
 		
+		@setAnalysisMenus([
+			new AnalyzeSiphons()
+		])
+		
 	getPreset: (node) ->
 		preset = []
 		for edge in @edges

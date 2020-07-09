@@ -109,7 +109,7 @@ class @ExaminePn2 extends @Analyzer
 		return true
 	
 	#is S a siphon in net
-	isSiphon: (net, S) ->
+	isSiphon: (net) -> (S) ->
 		if S.length <= 0
 			return "Empty"
 			
@@ -117,18 +117,18 @@ class @ExaminePn2 extends @Analyzer
 		for place in S
 			preT = net.getPreset(place)
 			if preT.length > 0
-				siphon = false
 				for t in preT
+					siphon = false
 					preP = net.getPreset(t)
 					for p in preP
 						if p in S
 							siphon = true
 							break
-				return false if not siphon
+					return false if not siphon
 		return siphon
 	
 	#is T a trap in net
-	isTrap: (net, T)	->
+	isTrap: (net) -> (T)	->
 		if T.length <= 0
 			return "Empty"
 			
@@ -136,14 +136,14 @@ class @ExaminePn2 extends @Analyzer
 		for place in T
 			postT = net.getPostset(place)
 			if postT.length > 0
-				trap = false
 				for t in postT
+					trap = false
 					postP = net.getPostset(t)
 					for p in postP
 						if p in T
 							trap = true
 							break
-				return false if not trap
+					return false if not trap
 		return trap
 		
 	isUnmarked: (net) ->

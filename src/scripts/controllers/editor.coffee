@@ -78,7 +78,10 @@ class Editor extends Controller
 			$scope.analyzeSubnet = (event) ->
 				analyzer = new ExamineSubPn()
 				analyzer.run(false, netStorageService, converterService, net, formDialogService, event, false)
-				
+			
+			$scope.restart = ()->
+				restart()
+			
 			# mouse event vars
 			selectedNode = null
 			mouseDownEdge = null
@@ -181,6 +184,7 @@ class Editor extends Controller
 				nodes.selectAll('.node').classed('firable', (node) ->  net.isFirable(node))
 				nodes.selectAll('.node').classed('selected', (node) -> node.selected)
 				nodes.selectAll('.node').classed('inSubnet', (node) -> net.inSubnet(node))
+				nodes.selectAll('.node').classed('siphon', (node) ->  node.siphon)
 
 				# update existing node labels
 				d3.selectAll('.nodeLabel').text((node) -> converterService.getNodeFromData(node).getText())
@@ -198,6 +202,7 @@ class Editor extends Controller
 				.classed('firable', (node) ->  net.isFirable(node))
 				.classed('selected', (node) -> node.selected)
 				.classed('inSubnet', (node) -> net.inSubnet(node))
+				.classed('siphon', (node) ->  node.siphon)
 				.on 'mouseover', (node) ->
 					return if !mouseDownNode or node == mouseDownNode or !net.isConnectable(mouseDownNode, node)
 					d3.select(this).style('fill', 'rgb(235, 235, 235)') # highlight target node

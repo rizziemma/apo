@@ -1,4 +1,4 @@
-<div flex ng-class="['editor-layout', net.activeTool]">
+<div flex ng-class="['editor-layout', net.activeTool, net.activeAnalysisMenu]">
 	<md-button ng-if="net.activeTool == 'Zoom'" class="md-primary" ng-click="resetZoom()" style="position: absolute; right:0; bottom: 0;z-index: 10;">
 		reset zoom
 	</md-button>
@@ -11,8 +11,9 @@
 		</md-button>
 	</div>
 	<topbar></topbar>
-	<menubar></menubar>
-	<toolbar></toolbar>
+	<menubar ng-class="net.activeAnalysisMenu != null ? 'disableElement' : ''"></menubar>
+	<toolbar ng-class="net.activeAnalysisMenu != null ? 'disableElement' : ''"></toolbar>
+	<analysisbar></analysisbar>
 	<div id="main-canvas">
 		<svg ng-hide="error">
 			<path class="link dragline hidden"></path>

@@ -73,6 +73,19 @@
                </md-menu-item>
             </md-menu-content>
          </md-menu>
+         <md-menu>
+            <button ng-click="$mdOpenMenu()">
+               Analysis Menus
+            </button>
+				<md-menu-content>
+               <md-menu-item class="md-indent" ng-repeat="analysis in net.analysisMenus">
+                  <ng-md-icon icon="{{analysis.icon}}" style="fill: rgba(0, 0, 0, .87)" size="20" aria-label="Analyze"></ng-md-icon>
+                  <md-button ng-click="net.activeAnalysisMenu = analysis.name; net.activeTool = net.tools[0].name">
+                     {{analysis.name}}
+                  </md-button>
+               </md-menu-item>
+            </md-menu-content>
+         </md-menu>
       </md-menu-bar>
    </div>
 </md-toolbar>

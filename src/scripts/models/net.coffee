@@ -12,6 +12,8 @@ class @Net
 
 	setAnalyzers: (@analyzers) ->
 
+	setAnalysisMenus: (@analysisMenus) ->
+		
 	addEdge: (edge) ->
 		edge.id = @getMaxEdgeId()+1
 		if not edge.curvedPath
@@ -56,6 +58,8 @@ class @Net
 		return false
 
 	getActiveTool: ->	return tool for tool in @tools when tool.name is @activeTool
+
+	getActiveAnalysisMenu: ->	return a for a in @analysisMenus when a.name is @activeAnalysisMenu
 
 	getPreset: (node) ->
 		preset = []

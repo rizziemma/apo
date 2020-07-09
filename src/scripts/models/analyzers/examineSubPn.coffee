@@ -21,8 +21,8 @@ class @ExamineSubPn extends @Analyzer
 	runTests: (net, S) ->
 		examine = new ExaminePn2()
 		tests = []
-		tests.push {name: "Siphon", result: examine.isSiphon(net, S)}
-		tests.push {name: "Trap", result: examine.isTrap(net, S)}
+		tests.push {name: "Siphon", result: examine.isSiphon(net)(S)}
+		tests.push {name: "Trap", result: examine.isTrap(net)(S)}
 		tests.push {name: "Unmarked", result: @isUnmarked(S)}
 		return tests
 		

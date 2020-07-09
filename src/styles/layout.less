@@ -95,6 +95,25 @@ md-toolbar {
 	}
 }
 
+.md-sidenav-right{
+	position: absolute !important;
+	top: 170px;
+	right: 20px;
+	left: auto;
+	bottom: 20px;
+	padding: 16px;
+	
+	.siphon-button{
+		text-transform: none !important;
+		text-color: black !important;
+		text-align: left !important;
+	}
+	
+	button{
+		min-width: 60px !important;
+	}
+	
+}
 md-menu-content {
    overflow: hidden;
 
@@ -189,6 +208,13 @@ md-dialog {
 	.error-card {
 		max-width: 450px;
 	}
+}
+
+.disableElement {
+	cursor: not-allowed !important;
+}
+.disableElement:active {
+	pointer-events:none;
 }
 
 // Disable iOS zoom on input focus

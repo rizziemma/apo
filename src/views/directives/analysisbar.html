@@ -1,0 +1,32 @@
+ <md-sidenav md-component-id="right-menu" position="end" class="md-sidenav-right md-whiteframe-z1" md-is-locked-open="true" ng-if="net.activeAnalysisMenu != null">
+	<h3>{{net.getActiveAnalysisMenu().name}}</h3>
+	{{net.getActiveAnalysisMenu().description}}
+	
+	<div ng-if="ab.result != ''">
+	<h3>Results</h3>
+		<md-list ng-if="ab.result.type == 'siphons'">
+			<md-list-item ng-repeat="siphon in ab.result.values">
+				<md-button class="md-primary siphon-button" ng-click="ab.actionSiphon(net, siphon.value)">
+					{{siphon.text}}
+				</md-button>
+			</md-list-item>
+		</md-list>
+		<div ng-if="ab.result.type == 'no result'">
+			<p>
+				{{ab.result.text}}
+			</p>
+		</div>
+	</div>
+	
+	<md-dialog-actions layout="row">
+		<md-button ng-if="net.getActiveAnalysisMenu().download" class="md-primary" ng-click="ab.download(net)" ng-disabled="ab.result == '' || ab.result.type == 'no result'">
+			{{net.getActiveAnalysisMenu().download}}
+		</md-button>
+		<md-button ng-if="net.getActiveAnalysisMenu().ok" class="md-primary" ng-click="ab.run(net)">
+			{{net.getActiveAnalysisMenu().ok}}
+		</md-button>
+		<md-button ng-if="net.getActiveAnalysisMenu().cancel" class="md-primary" ng-click="ab.dismiss(net)">
+			{{net.getActiveAnalysisMenu().cancel}}
+		</md-dialog-actions>
+	</div>
+</md-sidenav>
