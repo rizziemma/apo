@@ -5,38 +5,42 @@
 class AnalysisBarController extends Controller
 
 	constructor: ($scope) ->
-		@result = ""
+		@formElements = ""
 		@scope = $scope
 		
 
-	dismiss: (net) ->
-		net.getActiveAnalysisMenu().stop()
+	dismiss: () ->
+		@scope.net.getActiveAnalysisMenu().stop()
 		@result = ""
-		for p in net.nodes when p.type is "place"
+		for p in @scope.net.nodes when p.type is "place"
 			p.siphon = false
-		net.activeAnalysisMenu = null
+		@scope.net.activeAnalysisMenu = null
 		@scope.restart()
 		
-	run: (net) ->
-		@result = net.getActiveAnalysisMenu().run(net)
+	complete: () ->
+		@result = @scope.net.getActiveAnalysisMenu().run(@scope.net)
+				
 		
-	download: (net) ->
+	download: () ->
 		element = document.createElement('a')
 		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(@exportResult()))
 		element.setAttribute('target', '_blank')
-		element.setAttribute('download', net.name + " analysis")
+		element.setAttribute('download', @scope.net.name + " analysis")
 		element.style.display = 'none'
 		document.body.appendChild(element)
 		element.click()
 		document.body.removeChild(element)
 		return false
 		
-	actionSiphon: (net, siphon) ->
-		for p in net.nodes when p.type is "place"
+	cancel: () ->
+		@result = @scope.net.getActiveAnalysisMenu().stop()
+		
+	actionSiphon: (siphon) ->
+		for p in @scope.net.nodes when p.type is "place"
 			p.siphon = false
 			
 		for s in siphon
-			for p in net.getNodesByLabel(s.label)
+			for p in @scope.net.getNodesByLabel(s)
 				p.siphon = true
 		@scope.restart()
 		
@@ -50,7 +54,7 @@ class AnalysisBarController extends Controller
 class Analysisbar extends Directive
 	constructor: ->
 		return {
-			templateUrl: "/views/directives/analysisbar.html"
+			templateUrl: "views/directives/analysisbar.html"
 			controller: AnalysisBarController
 			controllerAs: "ab"
 		}

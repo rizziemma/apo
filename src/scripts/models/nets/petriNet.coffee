@@ -207,6 +207,9 @@ class @PetriNet extends @Net
 				net.addEdge(newEdge)
 		return net
 		
+	getPlacesFromLabel: (set) ->
+		result = (@getNodeByText(p) for p in set)
+		return result
 		
 	getSubnet: () ->
 		net = new PetriNet({name: @name, tools: @tools})

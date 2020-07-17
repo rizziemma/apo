@@ -10,16 +10,6 @@ class @ExaminePn2 extends @Analyzer
 		@description =  "Perform various tests on a petri net at once, client side execution."
 		@ok = "Start Tests"
 		@offlineCapable = true
-
-	@intersection: (l1, l2) ->
-		l3 = []
-		for e1 in l1
-			l3.push e1 if e1 in l2
-		return l3
-		
-	@included: (l1, l2) ->
-		return false for e in l1 when (e not in l2)
-		return true
 	
 	isWeightedPetriNet: (net) ->
 		return false for edge in net.edges when (edge.leftType isnt "normal" or edge.rightType isnt "normal")
@@ -57,9 +47,9 @@ class @ExaminePn2 extends @Analyzer
 			for p2 in net.nodes when p2 isnt p1 and p2.type is "place"
 				s1 = net.getPostset(p1)
 				s2 = net.getPostset(p2)
-				inter = ExaminePn2.intersection(s1, s2)
+				inter = ListsHelper.intersection(s1, s2)
 				if inter.length > 0
-					return false if not (ExaminePn2.included(s1, s2) or ExaminePn2.included(s2, s1))
+					return false if not (ListsHelper.included(s1, s2) or ListsHelper.included(s2, s1))
 		return true
 	
 	isFreeChoice: (net) ->
@@ -67,7 +57,7 @@ class @ExaminePn2 extends @Analyzer
 			for p2 in net.nodes when p2 isnt p1 and p2.type is "place"
 				s1 = net.getPostset(p1)
 				s2 = net.getPostset(p2)
-				inter = ExaminePn2.intersection(s1, s2)
+				inter = ListsHelper.intersection(s1, s2)
 				return false if inter.length > 0 and (inter.length != s1.length or inter.length != s2.length)
 		return true
 		
@@ -76,7 +66,7 @@ class @ExaminePn2 extends @Analyzer
 			for t2 in net.nodes when t2 isnt t1 and t2.type is "transition"
 				s1 = net.getPreset(t1)
 				s2 = net.getPreset(t2)
-				inter = ExaminePn2.intersection(s1, s2)
+				inter = ListsHelper.intersection(s1, s2)
 				if inter.length > 0
 					return false for p in inter when (net.getEdgeWeight(p, t1) != net.getEdgeWeight(p, t2))
 		return true
@@ -91,12 +81,12 @@ class @ExaminePn2 extends @Analyzer
 	
 	isPure: (net) ->
 		for t in net.nodes when t.type is "transition"
-			return false if (ExaminePn2.intersection(net.getPreset(t), net.getPostset(t))).length isnt 0
+			return false if (ListsHelper.intersection(net.getPreset(t), net.getPostset(t))).length isnt 0
 		return true
 		
 	isNonPureSimpleSideCondition: (net) ->
 		for t in net.nodes when t.type is "transition"
-			inter = ExaminePn2.intersection(net.getPreset(t), net.getPostset(t))
+			inter = ListsHelper.intersection(net.getPreset(t), net.getPostset(t))
 			if inter.length > 0
 				return false for p in inter when (net.getEdgeWeight(t, p) isnt 1 or net.getEdgeWeight(p, t) isnt 1 )
 		return true
@@ -109,10 +99,12 @@ class @ExaminePn2 extends @Analyzer
 		return true
 	
 	#is S a siphon in net
-	isSiphon: (net) -> (S) ->
-		if S.length <= 0
+	#any transition putting token into the set also takes token from it
+	isSiphon: (net) -> (Set) ->
+		if Set.length <= 0
 			return "Empty"
-			
+		S = if not (Set[0] instanceof Place) then net.getPlacesFromLabel(Set) else Set
+		console.log S
 		siphon = true
 		for place in S
 			preT = net.getPreset(place)
@@ -128,6 +120,7 @@ class @ExaminePn2 extends @Analyzer
 		return siphon
 	
 	#is T a trap in net
+	#any transition taking tokens from the set also puts token into it
 	isTrap: (net) -> (T)	->
 		if T.length <= 0
 			return "Empty"

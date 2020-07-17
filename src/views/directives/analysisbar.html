@@ -1,32 +1,70 @@
- <md-sidenav md-component-id="right-menu" position="end" class="md-sidenav-right md-whiteframe-z1" md-is-locked-open="true" ng-if="net.activeAnalysisMenu != null">
-	<h3>{{net.getActiveAnalysisMenu().name}}</h3>
-	{{net.getActiveAnalysisMenu().description}}
+ <md-sidenav md-component-id="right-menu" position="end" class="md-sidenav-right md-whiteframe-z1" md-is-locked-open="true" ng-if="net.activeAnalysisMenu != null" style="padding: 0;">
 	
-	<div ng-if="ab.result != ''">
-	<h3>Results</h3>
-		<md-list ng-if="ab.result.type == 'siphons'">
-			<md-list-item ng-repeat="siphon in ab.result.values">
-				<md-button class="md-primary siphon-button" ng-click="ab.actionSiphon(net, siphon.value)">
-					{{siphon.text}}
-				</md-button>
-			</md-list-item>
-		</md-list>
-		<div ng-if="ab.result.type == 'no result'">
-			<p>
-				{{ab.result.text}}
-			</p>
+	<md-toolbar style="position: absolute;top: 0;">
+		<div class="md-toolbar-tools">
+			<h2>{{net.getActiveAnalysisMenu().name}}</h2>
+			<span flex></span>
+			<md-button class="md-icon-button" ng-click="ab.dismiss()">
+				<ng-md-icon icon="close" style="fill: rgba(255, 255, 255, .87)" size="24" aria-label="close"></ng-md-icon>
+			</md-button>
 		</div>
-	</div>
+	</md-toolbar>
 	
-	<md-dialog-actions layout="row">
-		<md-button ng-if="net.getActiveAnalysisMenu().download" class="md-primary" ng-click="ab.download(net)" ng-disabled="ab.result == '' || ab.result.type == 'no result'">
-			{{net.getActiveAnalysisMenu().download}}
-		</md-button>
-		<md-button ng-if="net.getActiveAnalysisMenu().ok" class="md-primary" ng-click="ab.run(net)">
-			{{net.getActiveAnalysisMenu().ok}}
-		</md-button>
-		<md-button ng-if="net.getActiveAnalysisMenu().cancel" class="md-primary" ng-click="ab.dismiss(net)">
-			{{net.getActiveAnalysisMenu().cancel}}
-		</md-dialog-actions>
+	<div style="padding: 16px;position: absolute;top: 16px;">
+		{{net.getActiveAnalysisMenu().description}}
+		
+		<form name="parameter" ng-submit="ab.complete()">
+			<div layout="row" layout-wrap>
+				<md-input-container
+					class="md-block"
+					ng-repeat="(inputId, input) in ab.formElements">
+					<label ng-class="'input-label-' + input.type">{{ input.name }}</label>
+    				<select required ng-if="input.type == 'select'" ng-model="input.value" style="margin-top: 30px !important;">
+	       				<option ng-repeat = "e in input.chooseFrom"
+	          				value = "{{e.value}}">{{ e.name }}
+	       				</option>
+    				</select>
+					<input
+						ng-if="input.type == 'number'"
+						required type="number"
+						step="1"
+						ng-model="input.value"
+						min="{{input.min}}"
+						max="{{input.max}}"
+						error-message="input.error"
+						touched="input.touched"
+						validation="input.validation" />
+					<ng-message>{{ input.error }}</ng-message>
+				</md-input-container>
+			</div>
+		</form>
+		<div ng-if="ab.result != ''">
+		<h3>Results <span ng-if="ab.result.from != undefined">{{ab.result.from}} to {{ab.result.to}}</span></h3>
+		
+			<md-list ng-if="ab.result.type == 'siphons'">
+				<md-list-item ng-repeat="siphon in ab.result.values">
+					<md-button class="md-primary siphon-button" ng-click="ab.actionSiphon(siphon.value)">
+						{{siphon.text}}
+					</md-button>
+				</md-list-item>
+			</md-list>
+			<div ng-if="ab.result.type == 'no result'">
+				<p>
+					{{ab.result.text}}
+				</p>
+			</div>
+		</div>
+		
+		<md-dialog-actions layout="row">
+			<md-button ng-if="net.getActiveAnalysisMenu().download" class="md-primary" ng-click="ab.download()" ng-disabled="ab.result == '' || ab.result.type == 'no result'">
+				{{net.getActiveAnalysisMenu().download}}
+			</md-button>
+			<md-button ng-if="net.getActiveAnalysisMenu().ok" class="md-primary" ng-click="ab.complete()">
+				{{net.getActiveAnalysisMenu().ok}}
+			</md-button>
+			<md-button ng-if="net.getActiveAnalysisMenu().cancel" class="md-primary" ng-click="ab.cancel()">
+				{{net.getActiveAnalysisMenu().cancel}}
+			</md-dialog-actions>
+		</div>
 	</div>
 </md-sidenav>
