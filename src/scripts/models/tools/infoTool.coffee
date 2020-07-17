@@ -40,5 +40,5 @@ class @InfoTool extends @Tool
 				else
 					console.log 'Error loading data...'
 
-		req.open 'GET', '/resources/properties_ref.json', true
+		req.open 'GET', 'resources/properties_ref.json', true
 		req.send()

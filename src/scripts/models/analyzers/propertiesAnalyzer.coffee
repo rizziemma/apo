@@ -65,5 +65,5 @@ class @PropertiesNetAnalyzer extends @Analyzer
 				else
 					console.log 'Error loading data...'
 
-		req.open 'GET', '/resources/'+file, true
+		req.open 'GET', 'resources/'+file, true
 		req.send()

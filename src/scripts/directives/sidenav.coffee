@@ -58,7 +58,7 @@ class SidenavController extends Controller
 class Sidenav extends Directive
 	constructor: ->
 		return {
-			templateUrl: "/views/directives/sidenav.html"
+			templateUrl: "views/directives/sidenav.html"
 			controller: SidenavController
 			controllerAs: "sn"
 		}

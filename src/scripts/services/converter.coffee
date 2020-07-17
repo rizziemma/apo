@@ -425,7 +425,6 @@ class Converter extends Service
 								ang2 = ang2*2*Math.PI
 								cp = [new ControlPoint({x: source.x + (rad1 * Math.cos(ang1)), y: source.y - (rad1 * Math.sin(ang1))}),
 								new ControlPoint({x: target.x + (rad2 * Math.cos(ang2)), y: target.y - (rad2 * Math.sin(ang2))})]
-								console.log cp
 								curvedPath = true
 
 							if not rightDone and not leftDone
@@ -438,6 +437,7 @@ class Converter extends Service
 							[pad1, n1, n2] = title_reg.exec(line)
 							net.name = if n1 then n1 else n2
 						else
+							#ignore all other lines
 					
 				console.log net
 

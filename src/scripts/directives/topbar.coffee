@@ -32,7 +32,7 @@ class Topbar extends Directive
 		return {
 			controller: TopbarController
 			controllerAs: "tb"
-			templateUrl: "/views/directives/topbar.html"
+			templateUrl: "views/directives/topbar.html"
 		}
 
 class AboutController extends Controller
