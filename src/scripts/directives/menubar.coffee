@@ -143,7 +143,7 @@ class MenubarController extends Controller
 					{
 						type: "select"
 						name: "Choose the file format"
-						value: ""
+						value: "ndr"
 						chooseFrom: [
 							{name: "APT", value: "apt"},
 							{name: "ND", value: "ndr"}
@@ -221,7 +221,7 @@ class MenubarController extends Controller
 class Menubar extends Directive
 	constructor: ->
 		return {
-			templateUrl: "/views/directives/menubar.html"
+			templateUrl: "views/directives/menubar.html"
 			controller: MenubarController
 			controllerAs: "mb"
 		}

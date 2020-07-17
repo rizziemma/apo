@@ -29,11 +29,10 @@
 						ng-if="dialog.showInput(input)">
 						<label ng-class="'input-label-' + input.type">{{ input.name }}</label>
          				<select required ng-if="input.type == 'select'" ng-model="input.value" style="margin-top: 30px !important;">
-         					<option value = "" >Choose an option</option>
-            				<option ng-repeat = "e in input.chooseFrom"
-               				value = "{{e.value}}">{{ e.name }}
-            				</option>
-         				</select>
+	       				<option ng-repeat = "e in input.chooseFrom"
+	          				value = "{{e.value}}">{{ e.name }}
+	       				</option>
+    				</select>
 						<input
 							ng-if="input.type == 'number'"
 							required type="number"
