@@ -57,6 +57,13 @@ class @PetriNet extends @Net
 			else if (node.shared and edge.source.label is node.label and edge.right >= 1)
 				preset.push(edge.target)
 		return preset
+		
+	getPlaces: ()->
+		return (p for p in @nodes when p.type is "place")
+	
+	getTransitions: ()->
+		return (t for t in @nodes when t.type is "transition")
+		
 	# Add a new transition node
 	addTransition: (point) ->
 		transition = new Transition(point)

@@ -15,6 +15,8 @@ class @ListsHelper
 			l3.push e2 if e2 not in l1
 		return l3
 		
+	@exclude: (l1, l2) ->
+		return l1.filter (e) -> e not in l2
 	@included: (l1, l2) ->
 		return false for e in l1 when (e not in l2)
 		return true
@@ -84,7 +86,6 @@ class @ListsHelper
 		result = []
 		k = if index.k then index.k else set.length
 		while (k > 0 and (max and result.length < max))
-			console.log k
 			[result, more, iter, knownResults] = @GospersHack(k, (if index.k then index.i else false), set, predicate, result, knownResults, max, "max")
 			k--
 		return [result, more, {k: k+1, i: iter}, knownResults]

@@ -43,7 +43,7 @@
 		
 			<md-list ng-if="ab.result.type == 'siphons'">
 				<md-list-item ng-repeat="siphon in ab.result.values">
-					<md-button class="md-primary siphon-button" ng-click="ab.actionSiphon(siphon.value)">
+					<md-button class="md-primary siphon-button" ng-class="siphon.selected? 'selected':''" ng-click="console.log(this); ab.actionSiphon(siphon)">
 						{{siphon.text}}
 					</md-button>
 				</md-list-item>

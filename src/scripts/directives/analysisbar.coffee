@@ -36,11 +36,14 @@ class AnalysisBarController extends Controller
 		@result = @scope.net.getActiveAnalysisMenu().stop()
 		
 	actionSiphon: (siphon) ->
+		for s in @result.values
+			s.selected = false
+		siphon.selected = true
+		
 		for p in @scope.net.nodes when p.type is "place"
 			p.siphon = false
-			
-		for s in siphon
-			for p in @scope.net.getNodesByLabel(s)
+		for s in siphon.value
+			for p in @scope.net.getNodesByLabel(s.label)
 				p.siphon = true
 		@scope.restart()
 		

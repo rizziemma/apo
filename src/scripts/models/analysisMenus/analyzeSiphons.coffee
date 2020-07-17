@@ -32,12 +32,12 @@ class @AnalyzeSiphons extends AnalysisMenu
 	setToString: (s) ->
 		string = ""
 		for e in s
-			string += e + " "
+			string += e.label + " "
 		return string
 		
 	getSiphonsBruteForce: (net, option, max) ->
 		a = new ExaminePn2()
-		places = (p.label for p in net.nodes when p.type is "place")
+		places = net.getPlaces()
 		switch option
 			when "all"
 				if @ok is "Run"
@@ -73,7 +73,6 @@ class @AnalyzeSiphons extends AnalysisMenu
 			@ok = "Run"
 		return [siphons, from, to]
 			
-		
 	###
 	solveList: (A) ->
 		result = []
@@ -83,9 +82,9 @@ class @AnalyzeSiphons extends AnalysisMenu
 			if result.length is 0
 				[S, P] = @findSiphon(P)
 			else
-				S = (p for p in P.G.nodes when p.type is "place")
+				S = P.G.getPlaces()
 			if S.length > 0
-				if S isnt P.Pin
+				if not ListsHelper.equal(S, P.Pin)
 					S = @findMinimalSiphon(P)
 				result.push(S)
 				A.push(P)
@@ -96,30 +95,68 @@ class @AnalyzeSiphons extends AnalysisMenu
 		a = new ExaminePn2()
 		isReducible = true
 		while isReducible
-			if ListsHelper.intersectin(P.Pin, p.Pout).length > 0
+			if ListsHelper.intersection(P.Pin, p.Pout).length > 0
 				return [[], P]
-			else if ListsHelper.equal(ListsHelper.union(P.Pin, Pout), (p for p in P.G.nodes when p.type is "place"))
+			else if ListsHelper.equal(ListsHelper.union(P.Pin, Pout), P.G.getPlaces())
 				S = if a.isSiphon(P.G)(P.Pin) then P.Pin else []
 				return [S, P]
 			if P.Pout.length > 0
-				G = @red(G,P.filter (e)-> e in P.Pout)
+				G = @red(G, ListsHelper.exclude(P, P.Pout))
 				P = {G:P.G, Pin: P.Pin, Pout: []}
-			(isReducible, P) = @reduce(P)
-		return [(p for p in P.G.nodes when p.type is "place"), P]
+			[isReducible, P] = @reduce(P)
+		return [P.G.getPlaces(), P]
 			
 	red: (G) ->
-		for t in G.nodes when t.type is "transition"
+		for t in G.getTransitions()
 			if G.getPreset(t).length is 0
 				postT = G.getPostset(t)
 				for p in postT
 					G.deleteNode(p)
 		return G
+	
+	reduce: (P) ->
+		isReducible = true
+		t1 = (t for t in P.G.getTransitions() when P.G.getPreset(t).length is 0)
+		p1 = []
+		for t in t1
+			p1 = p1.concat P.G.getPostset(t)
+		pre = []
+		post = []
+		for p in P.Pin
+			pre = pre.concat P.G.getPreset(p)
+			post = post.concat P.G.getPostset(p)
+		t2 = (t for t in ListsHelper.exclude(pre, post) when P.G.getPreset(t).length is 1)
+		p2 = []
+		for t in t2
+			p2 = p2.concat P.G.getPreset(t2)
+		p2 = ListsHelper.intersection(p2, ListsHelper.exclude(P.G.getPlaces(), P.Pin))
 		
+		if p1.length is 0 and p2.length is 0
+			isReducible = false
+		else
+			P = {G:P.G, Pin: ListsHelper.union(P.Pin, p2), Pout : ListsHelper.union(P.Pout, p1)}
+		return [isReducible, P]
+	
+	findMinimalSiphon: (P) ->
+		S = P.G.getPlaces()
+		p1 = ListsHelper.exclude(S, P.Pin)
+		while p1.length > 0
+			p = p1.pop()
+			cond = true
+			for t in P.G.getPostset(p)
+				if p not in ListsHelper.intersection(P.G.getPreset(t), S) and ListsHelper.intersection(P.G.getPostSet(t), S)
+					S = ListsHelper.exclude(S, [p])
+		
+		p1 = ListsHelper.exclude(S, P.Pin)
+		p2 = P.Pin
+		while p1.length > 0
+			p = p1.pop()
+			g = red(P.G, ListsHelper.exclude(S, [P]))
 	partition: (A, S) ->
 		B = []
 		while A.length > 0
 			P = A.pop()
-			places = S.filter (e) -> e not in P.Pin
+			places = ListsHelper.exclude(S, P.Pin)
 			while places.length > 0 and ListsHelper.intersection(P.Pout, P.Pin).length > 0
 				p = places.pop()
 				P.Pout.push(p) if p not in P.Pout
@@ -132,8 +169,8 @@ class @AnalyzeSiphons extends AnalysisMenu
 	#implementation of Cordone's algorithm (2005)
 	getAllSiphonsCordone: (net) ->
 		Pb = {G: net, Pin: [], Pout: []}
-	###
 	
+	###
 	run: (currentNet) ->
 		net = currentNet.getNetWithNoSharedPlaces()
 		
@@ -146,7 +183,7 @@ class @AnalyzeSiphons extends AnalysisMenu
 		else
 			return {
 				type: "siphons"
-				values: ({text: @setToString(s), value: s} for s in siphons),
+				values: ({text: @setToString(s), value: s, selected: false} for s in siphons),
 				from: from,
 				to: to
 			}

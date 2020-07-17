@@ -100,11 +100,9 @@ class @ExaminePn2 extends @Analyzer
 	
 	#is S a siphon in net
 	#any transition putting token into the set also takes token from it
-	isSiphon: (net) -> (Set) ->
+	isSiphon: (net) -> (S) ->
 		if Set.length <= 0
 			return "Empty"
-		S = if not (Set[0] instanceof Place) then net.getPlacesFromLabel(Set) else Set
-		console.log S
 		siphon = true
 		for place in S
 			preT = net.getPreset(place)
