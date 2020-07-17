@@ -172,8 +172,9 @@ for data in places :
 
         place_id = data["PNAME"].replace(" ", "-") + "*" + data["PID"].replace(" ", "")
                 
-        ref.write('{ "name":"'+ place_id +'",'
-                  +'"aka":"' + data["AKA"] + '",'
+        ref.write('{ "name":"'+ data["PNAME"].replace(" ", "-") +'",'
+                  +'"id":"' + data["PID"].replace(" ", "") + '",'
+		  +'"aka":"' + data["AKA"] + '",'
                   +'"def":"' + data["PDEF"] + '",'
                   +'"ref":"' + data["PREF"] + '"}')
         first = False
