@@ -29,11 +29,14 @@ class Editor extends Controller
 				if net.getActiveTool().draggable # drag and drop
 					nodes.call(drag)
 					cp.call(drag)
+					notes.call(drag)
 				else
 					nodes.on('mousedown.drag', null)
 					nodes.on('touchstart.drag', null)
 					cp.on('mousedown.drag', null)
 					cp.on('touchstart.drag', null)
+					notes.on('mousedown.drag', null)
+					notes.on('touchstart.drag', null)
 					
 				for e in net.edges
 					e.editCp = false
@@ -57,11 +60,12 @@ class Editor extends Controller
 			nodes = svg.append('svg:g').selectAll('g')
 			cpedge = svg.append('svg:g').selectAll('.cpedge')
 			cp = svg.append('svg:g').selectAll('.cp')
-			
+			notes = svg.append('svg:g').selectAll('g')
 			
 			zoomed = ->
 				if net.getActiveTool() instanceof ZoomTool
 					svg.selectAll('g').attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+					#dragLine.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
 			zoom = d3.behavior.zoom()
 				.on("zoom", -> zoomed())
 					
@@ -69,7 +73,7 @@ class Editor extends Controller
 				
 			#button reset zoom
 			$scope.resetZoom = () ->
-				svg.selectAll('g').attr('transform', 'translate([0, 0]) scale(1)')
+				svg.selectAll('g').attr('transform', 'translate(0, 0) scale(1)')
 			
 			#buttons Subnet
 			$scope.extractSubnet = () ->
@@ -125,11 +129,13 @@ class Editor extends Controller
 					'translate(' + d.x + ',' + d.y + ')'
 				cp.attr 'transform', (d) ->
 					'translate(' + d.x + ',' + d.y + ')'
+				notes.attr 'transform', (d) ->
+					'translate(' + d.x + ',' + d.y + ')'
 				
 			# update graph layout (called when needed)
 			restart = ->
 				
-				force.nodes(net.nodes.concat net.controlPoints())
+				force.nodes((net.nodes.concat(net.notes)).concat(net.controlPoints()))
 
 				#net.printCoordinates()
 				
@@ -282,6 +288,58 @@ class Editor extends Controller
 				nodes.exit().remove() # remove old nodes
 				
 				
+				#notes
+				notes = notes.data(net.notes)
+				
+				notes.selectAll('.note').classed('selected', (note) -> note.selected)
+				d3.selectAll('.noteText').html((note)->"<div id='noteText"+note.id+"' style='display:inline-block; padding:5px;'>"+converterService.getNodeFromData(note).getSvgText()+"</div")
+				
+				# add new notes
+				newNotes = notes.enter().append('svg:g')
+				newNotes.append((note) -> document.createElementNS("http://www.w3.org/2000/svg", note.shape))
+				.attr('class', (note) -> note.type)
+				.classed('selected', (note) -> note.selected)
+				
+				
+				newNotes.append('foreignObject')
+				.attr('class', 'noteText')
+				.html((note)->"<div id='noteText"+note.id+"' style='display:inline-block; padding:5px;'>"+converterService.getNodeFromData(note).getSvgText()+"</div")
+				.on 'mouseover', (note) ->
+					return if !mouseDownNode or note == mouseDownNode or !net.isConnectable(mouseDownNode, note)
+					d3.select(this).style('fill', 'rgb(235, 235, 235)') # highlight target note
+
+				.on 'mouseout', (note) ->
+					return if !mouseDownNode or note == mouseDownNode
+					d3.select(this).attr 'style', '' # unhighlight target node
+
+				.on 'mousedown', (note) ->
+
+					# select note
+					mouseDownNode = note
+					if mouseDownNode == selectedNode
+						selectedNode = null
+					else
+						selectedNode = mouseDownNode
+
+					# call the tools mouseDown listener
+					net.getActiveTool().mouseDownOnNode(net, mouseDownNode, dragLine, formDialogService, restart, converterService)
+					$scope.$apply() # Quick save net to storage
+					restart()
+					
+				.on 'dblclick', (note) ->
+					net.getActiveTool().dblClickOnNode(net, note)
+					restart()
+					
+				
+				notes.exit().remove() # remove old nodes
+				
+				notes.selectAll('.note')
+				.attr('height', (note) -> Math.max(note.height, document.getElementById('noteText'+note.id).getBoundingClientRect().height))
+				.attr('width',  (note) -> Math.max(note.width,  document.getElementById('noteText'+note.id).getBoundingClientRect().width))
+				
+				notes.selectAll('.noteText')
+				.attr('height', (note) -> Math.max(note.height, document.getElementById('noteText'+note.id).getBoundingClientRect().height))
+				.attr('width',  (note) -> Math.max(note.width,  document.getElementById('noteText'+note.id).getBoundingClientRect().width))
 				
 				#add control points
 				cp = cp.data(net.controlPoints())
@@ -333,7 +391,7 @@ class Editor extends Controller
 				return if not mouseDownNode
 
 				# update drag line
-				dragLine.attr('d', 'M' + mouseDownNode.x + ',' + mouseDownNode.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1])
+				dragLine.attr('d', 'M' + (mouseDownNode.x) + ',' + (mouseDownNode.y) + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1])
 				restart()
 
 			mouseup = ->

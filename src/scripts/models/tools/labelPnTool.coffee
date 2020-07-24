@@ -52,57 +52,73 @@ class @LabelPnTool extends @Tool
 
 
 	mouseDownOnNode: (net, mouseDownNode, dragLine, formDialogService, restart, converterService) ->
-
+		console.log mouseDownNode
 		nodeObj = converterService.getNodeFromData(mouseDownNode)
-
-		formDialogService.runDialog({
-			title: "Label for #{mouseDownNode.type}"
-			text: "Enter a name for this #{mouseDownNode.type}"
-			formElements: [
-				{
-					name: "Name"
-					type: "text"
-					value: nodeObj.getText()
-					validation: @labelValidator
-				}
-			]
-		})
-		.then (formElements) ->
-			if formElements
-				others = net.getNodesByLabel(formElements[0].value)
-				
-				if mouseDownNode.type is "transition"
-					mouseDownNode.label = formElements[0].value
+		if nodeObj.type is "note"
+			formDialogService.runDialog({
+				title: "Edit this note"
+				formElements: [
+					{
+						name: "Note"
+						type: "textArea"
+						value: nodeObj.getText()
+					}
+				]
+			})
+			.then (formElements) ->
+				if formElements
+					mouseDownNode.text = formElements[0].value
+					mouseDownNode.initialized = true
 					restart()
-				else
-					if others.length is 0
-						if not mouseDownNode.shared
-							mouseDownNode.label = formElements[0].value
-							restart()
+		else
+			formDialogService.runDialog({
+				title: "Label for #{mouseDownNode.type}"
+				text: "Enter a name for this #{mouseDownNode.type}"
+				formElements: [
+					{
+						name: "Name"
+						type: "text"
+						value: nodeObj.getText()
+						validation: @labelValidator
+					}
+				]
+			})
+			.then (formElements) ->
+				if formElements
+					others = net.getNodesByLabel(formElements[0].value)
+					
+					if mouseDownNode.type is "transition"
+						mouseDownNode.label = formElements[0].value
+						restart()
+					else
+						if others.length is 0
+							if not mouseDownNode.shared
+								mouseDownNode.label = formElements[0].value
+								restart()
+							else
+								formDialogService.runDialog({
+									title: "Warning"
+									text: "This place is actually a shared place. Changing its label will unlink it from the other places. Continue ?"
+								})
+								.then (formElements2) ->
+									if formElements2
+										mouseDownNode.shared = false
+										others = net.getNodesByLabel(mouseDownNode.label)
+										if others.length is 1
+											net.getNodeById(others[0].id).shared = false
+										mouseDownNode.label = formElements[0].value
+										restart()
 						else
 							formDialogService.runDialog({
 								title: "Warning"
-								text: "This place is actually a shared place. Changing its label will unlink it from the other places. Continue ?"
+								text: "At least one other node has this label, changing its label will create a shared place. Continue ?"
 							})
 							.then (formElements2) ->
 								if formElements2
-									mouseDownNode.shared = false
-									others = net.getNodesByLabel(mouseDownNode.label)
-									if others.length is 1
-										net.getNodeById(others[0].id).shared = false
 									mouseDownNode.label = formElements[0].value
+									mouseDownNode.shared = true
+									net.setTokens(mouseDownNode, others[0].tokens)
+									for p in others
+										net.getNodeById(p.id).shared = true
 									restart()
-					else
-						formDialogService.runDialog({
-							title: "Warning"
-							text: "At least one other node has this label, changing its label will create a shared place. Continue ?"
-						})
-						.then (formElements2) ->
-							if formElements2
-								mouseDownNode.label = formElements[0].value
-								mouseDownNode.shared = true
-								net.setTokens(mouseDownNode, others[0].tokens)
-								for p in others
-									net.getNodeById(p.id).shared = true
-								restart()
 					

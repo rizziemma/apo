@@ -51,7 +51,19 @@
 							error-message="input.error"
 							touched="input.touched"
 							autocomplete="false"
-							validation="input.validation" />
+							validation="input.validation" 
+							error-message="input.error"
+							touched="input.touched"
+							autocomplete="false"
+							validation="input.validation"/>
+						<textarea
+							ng-if="input.type == 'textArea'"
+							required
+							ng-model="input.value"
+							error-message="input.error"
+							touched="input.touched"
+							validation="input.validation" >
+						</textarea>
 						<md-checkbox
 							ng-if="input.type == 'checkbox'"
 							class="md-primary"

@@ -5,7 +5,7 @@
 
 class @Net
 	constructor: (netObject = {}) ->
-		{@name = "", @nodes = [], @edges = [], @tools = []} = netObject
+		{@name = "", @nodes = [], @edges = [], @tools = [], @notes = []} = netObject
 
 	setTools: (@tools) ->
 		@activeTool = @tools[0].name if not @activeTool and @tools.length > 0
@@ -15,12 +15,12 @@ class @Net
 	setAnalysisMenus: (@analysisMenus) ->
 		
 	addEdge: (edge) ->
-		edge.id = @getMaxEdgeId()+1
+		edge.id = @getMaxId(@edges)+1
 		if not edge.curvedPath
 			cp1 = new ControlPoint()
 			cp2 = new ControlPoint()
 			edge.cp = [cp1,cp2]
-		maxId = @getMaxCpId()
+		maxId = @getMaxId(@controlPoints())
 		edge.cp[0].id = maxId+1
 		edge.cp[1].id = maxId+2
 		
@@ -34,13 +34,26 @@ class @Net
 
 	addNode: (node) ->
 		if node.id is false
-			node.id = @getMaxNodeId()+1
+			node.id = @getMaxId(@nodes)+1
 			if node instanceof Place
 				node.label = "p"+node.id
 			if node instanceof Transition
 				node.label = "t"+node.id
 		@nodes.push(node)
 
+	addNote: (point) ->
+		note = new Note(point)
+		if note.id is false
+			note.id = @getMaxId(@notes)+1
+			note.label = "n"+note.id
+		@notes.push(note)
+		
+	deleteNote: (deleteNote) ->
+		for note, index in @notes when deleteNote.id is note.id
+			@notes.splice(index, 1)
+			return true
+		return false
+		
 	deleteNode: (deleteNode) ->
 		# Delete connected edges
 		oldEdges = []
@@ -89,23 +102,15 @@ class @Net
 	getNodeById: (id) ->
 		return node for node in @nodes when node.id is id
 		return false
+	
+	getNoteById: (id) ->
+		return note for note in @notes when note.id is id
+		return false
 
-	getMaxNodeId: ->
+	getMaxId: (from) ->
 		maxId = -1
-		for node in @nodes when (node.id > maxId)
-			maxId = node.id
-		maxId
-
-	getMaxEdgeId: ->
-		maxId = -1
-		for edge in @edges when (edge.id > maxId)
-			maxId = edge.id
-		maxId
-		
-	getMaxCpId: ->
-		maxId = -1
-		for cp in @controlPoints() when (cp.id > maxId)
-			maxId = cp.id
+		for e in from when (e.id > maxId)
+			maxId = e.id
 		maxId
 
 	getEdgeByCp: (cp) ->

@@ -12,6 +12,7 @@ class @PetriNet extends @Net
 			new MoveTool()
 			new PlaceTool()
 			new TransitionTool()
+			new NoteTool()
 			new ArrowTool()
 			new TokenTool()
 			new DeleteTool()

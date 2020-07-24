@@ -25,6 +25,7 @@ class Converter extends Service
 				when "transition" then return new Transition(nodeData)
 				when "place" then return new Place(nodeData)
 				when "state" then return new State(nodeData)
+				when "note" then return new Note(nodeData)
 				when "initState" then return new InitState(nodeData)
 				else return new Node(nodeData)
 				
@@ -354,11 +355,12 @@ class Converter extends Service
 		@getNetFromNd = (ndCode) ->
 			place_reg = /p ([\d\.]*) ([\d\.]*) (\{([^\}]*)\}|([\S]*)) ([\d\.]*) .[\S]?( (\{(.*)\}|([\S]*)) .[\S]?)?/
 			transition_reg = /t ([\d\.]*) ([\d\.]*) (\{([^\}]*)\}|([\S]*)) (. [\d\.]* [\S]* .[\S]? (\{(.*)\}|([\S]*)) .[\S]?|[\S]* [\S]* .[\S]?)/
+			note_reg = /a ([\d\.]*) ([\d\.]*) (n[\d]*) (0|1) (\{(.*)\})/
 			edge_reg = /e (\{([^\}]*)\}|([\S]*)) (([\d\.]*) ([\d\.]*) )?(\{([^\}]*)\}|([\S]*))(( [\d\.]*)( [\d\.]*))?( \?\-| \?| )([\d\.]*) .[\S]?/
 			title_reg = /h (\{([^\}]*)\}|([^ ]*))/
 			try
 				net = new PetriNet()
-				for line in ndCode.split("\n")
+				for line in ndCode.split(/\n/)
 					switch line.split(" ")[0]
 						when "p"
 							[pad, x, y, pad, pad, id, tokens, pad, pad, label] = place_reg.exec(line)
@@ -376,6 +378,14 @@ class Converter extends Service
 							transition = new Transition({x: x, y: y, id: id, label: if label then label else id})
 							transition.fixed = true
 							net.addNode(transition)
+						when "a"
+							[pad, x, y, label, init, pad, text] = note_reg.exec(line)
+							x = parseInt(x, 10)
+							y = parseInt(y, 10) + 140
+							text = text.replace(/\\n/gi, '\n')
+							note = new Note({x: x, y: y, label: label, text: text, initialized: init})
+							note.fixed = true
+							net.addNote(note)
 						when "e"
 							[pad, pad, s_id1, s_id2, pad, ang1, rad1, pad, t_id1, t_id2, pad, ang2, rad2, type, weight] = edge_reg.exec(line)
 							source = net.getNodeById(if s_id1 then s_id1 else s_id2)
@@ -434,7 +444,7 @@ class Converter extends Service
 							else if not leftDone
 								net.addEdge(new Edge({source: target, target: source, right : weight, rightType: (if type isnt"readArc" then type else "normal"), cp : cp, curvedPath : curvedPath}))
 						when "h"
-							[pad1, n1, n2] = title_reg.exec(line)
+							[pad, pad, n1, n2] = title_reg.exec(line)
 							net.name = if n1 then n1 else n2
 						else
 							#ignore all other lines
@@ -457,7 +467,6 @@ class Converter extends Service
 				tours = tours+0.5
 			return [tours, Math.sqrt(x*x + y*y)]
 
-
 		@getNdFromNet = (net) ->
 			code = ""
 			rows = []
@@ -475,6 +484,15 @@ class Converter extends Service
 					else
 						text += " 0 w n"
 				rows.push(text)
+			
+			for n in net.notes
+				text = "a " + n.x + " " + (n.y-140) + " " + n.label
+				if n.initialized
+					text += " 1 {"+ n.text.replace(/\n/gi, '\\n') + "}"
+				else
+					text += " 0 {dbl click to edit}"
+				rows.push(text)
+				
 				
 			for e in net.edges
 				cp1 = ["",""]

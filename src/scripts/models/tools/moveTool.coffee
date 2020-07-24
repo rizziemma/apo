@@ -12,9 +12,11 @@ class @MoveTool extends @Tool
 		@draggable = true
 
 	mouseDownOnNode: (net, node) ->
+		console.log node
 		node.fixed = true
 		
 	dblClickOnNode: (net, node) ->
+		console.log node
 		node.fixed = false
 		
 	mouseDownOnCp: (net, cp) ->
