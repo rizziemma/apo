@@ -11,4 +11,4 @@ class @NoteTool extends @Tool
 		@draggable = true
 
 	mouseDownOnCanvas: (net, point) ->
-		net.addNote(point)
+		net.addNote(new Note(point))

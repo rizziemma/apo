@@ -41,8 +41,7 @@ class @Net
 				node.label = "t"+node.id
 		@nodes.push(node)
 
-	addNote: (point) ->
-		note = new Note(point)
+	addNote: (note) ->
 		if note.id is false
 			note.id = @getMaxId(@notes)+1
 			note.label = "n"+note.id
