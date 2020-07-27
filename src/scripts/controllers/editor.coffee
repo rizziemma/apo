@@ -55,6 +55,7 @@ class Editor extends Controller
 			force.nodes({})
 			drag = force.drag()
 			colors = d3.scale.category10()
+			
 			dragLine = svg.select('svg .dragline')
 			edges = svg.append('svg:g').selectAll('.edge')
 			nodes = svg.append('svg:g').selectAll('g')
@@ -62,10 +63,17 @@ class Editor extends Controller
 			cp = svg.append('svg:g').selectAll('.cp')
 			notes = svg.append('svg:g').selectAll('g')
 			
+			
+			translateVar = [0,0]
+			scaleVar = 1
+			
 			zoomed = ->
 				if net.getActiveTool() instanceof ZoomTool
-					svg.selectAll('g').attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
-					#dragLine.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+					translateVar = d3.event.translate
+					scaleVar = d3.event.scale
+					svg.selectAll('g').attr("transform", "translate(" + translateVar + ")" + " scale(" + scaleVar + ")")
+					dragLine.attr("transform", "translate(" + translateVar + ")" + " scale(" + scaleVar + ")")
+					
 			zoom = d3.behavior.zoom()
 				.on("zoom", -> zoomed())
 					
@@ -73,7 +81,11 @@ class Editor extends Controller
 				
 			#button reset zoom
 			$scope.resetZoom = () ->
-				svg.selectAll('g').attr('transform', 'translate(0, 0) scale(1)')
+				translateVar = [0,0]
+				scaleVar = 1
+				svg.selectAll('g').attr("transform", "translate(" + translateVar + ")" + " scale(" + scaleVar + ")")
+				dragLine.attr("transform", "translate(" + translateVar + ")" + " scale(" + scaleVar + ")")
+				
 			
 			#buttons Subnet
 			$scope.extractSubnet = () ->
@@ -291,8 +303,11 @@ class Editor extends Controller
 				#notes
 				notes = notes.data(net.notes)
 				
-				notes.selectAll('.note').classed('selected', (note) -> note.selected)
-				d3.selectAll('.noteText').html((note)->"<div id='noteText"+note.id+"' style='display:inline-block; padding:5px;'>"+converterService.getNodeFromData(note).getSvgText()+"</div")
+				notes.selectAll('.note')
+				.classed('selected', (note) -> note.selected)
+				
+				d3.selectAll('.noteText')
+				.html((note)->"<div id='noteText"+note.id+"'>"+converterService.getNodeFromData(note).getSvgText()+"</div")
 				
 				# add new notes
 				newNotes = notes.enter().append('svg:g')
@@ -300,10 +315,9 @@ class Editor extends Controller
 				.attr('class', (note) -> note.type)
 				.classed('selected', (note) -> note.selected)
 				
-				
 				newNotes.append('foreignObject')
-				.attr('class', 'noteText')
-				.html((note)->"<div id='noteText"+note.id+"' style='display:inline-block; padding:5px;'>"+converterService.getNodeFromData(note).getSvgText()+"</div")
+				.classed('noteText', true)
+				.html((note)->"<div id='noteText"+note.id+"'>"+converterService.getNodeFromData(note).getSvgText()+"</div")
 				.on 'mouseover', (note) ->
 					return if !mouseDownNode or note == mouseDownNode or !net.isConnectable(mouseDownNode, note)
 					d3.select(this).style('fill', 'rgb(235, 235, 235)') # highlight target note
@@ -334,12 +348,12 @@ class Editor extends Controller
 				notes.exit().remove() # remove old nodes
 				
 				notes.selectAll('.note')
-				.attr('height', (note) -> Math.max(note.height, document.getElementById('noteText'+note.id).getBoundingClientRect().height))
-				.attr('width',  (note) -> Math.max(note.width,  document.getElementById('noteText'+note.id).getBoundingClientRect().width))
+				.attr('height', (note) -> (Math.max(note.height, document.getElementById('noteText'+note.id).getBoundingClientRect().height)) / scaleVar)
+				.attr('width',  (note) -> (Math.max(note.width,  document.getElementById('noteText'+note.id).getBoundingClientRect().width)) / scaleVar)
 				
 				notes.selectAll('.noteText')
-				.attr('height', (note) -> Math.max(note.height, document.getElementById('noteText'+note.id).getBoundingClientRect().height))
-				.attr('width',  (note) -> Math.max(note.width,  document.getElementById('noteText'+note.id).getBoundingClientRect().width))
+				.attr('height', (note) -> (Math.max(note.height, document.getElementById('noteText'+note.id).getBoundingClientRect().height)) / scaleVar)
+				.attr('width',  (note) -> (Math.max(note.width,  document.getElementById('noteText'+note.id).getBoundingClientRect().width)) / scaleVar)
 				
 				#add control points
 				cp = cp.data(net.controlPoints())
@@ -382,7 +396,7 @@ class Editor extends Controller
 				return if mouseDownNode or mouseDownEdge
 
 				# fire the current tool's mouseDown listener
-				point = new Point({x: d3.mouse(this)[0], y: d3.mouse(this)[1]})
+				point = new Point({x: ((d3.mouse(this)[0] - translateVar[0]) / scaleVar), y: ((d3.mouse(this)[1] - translateVar[1]) / scaleVar)})
 				net.getActiveTool().mouseDownOnCanvas(net, point)
 				$scope.$apply() # Quick save net to storage
 				restart()
@@ -391,13 +405,14 @@ class Editor extends Controller
 				return if not mouseDownNode
 
 				# update drag line
-				dragLine.attr('d', 'M' + (mouseDownNode.x) + ',' + (mouseDownNode.y) + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1])
+				dragLine.attr('d', 'M' + (mouseDownNode.x) + ',' + (mouseDownNode.y) + 'L' + ((d3.mouse(this)[0] - translateVar[0]) / scaleVar) + ',' + ((d3.mouse(this)[1] - translateVar[1]) / scaleVar))
 				restart()
 
 			mouseup = ->
 				dragLine.classed('hidden', true).style('marker-end', '') if mouseDownNode # hide drag line
 				svg.classed('active', false)
 				resetMouseVars()
+				restart()
 
 			# init D3 force layout
 			force = force.links(net.edges).size([
