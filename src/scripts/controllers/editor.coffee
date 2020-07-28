@@ -301,7 +301,7 @@ class Editor extends Controller
 				
 				
 				#notes
-				notes = notes.data(net.notes)
+				notes = notes.data(net.notes, (note) -> note.id)
 				
 				notes.selectAll('.note')
 				.classed('selected', (note) -> note.selected)
