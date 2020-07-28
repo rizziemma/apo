@@ -52,7 +52,6 @@ class @LabelPnTool extends @Tool
 
 
 	mouseDownOnNode: (net, mouseDownNode, dragLine, formDialogService, restart, converterService) ->
-		console.log mouseDownNode
 		nodeObj = converterService.getNodeFromData(mouseDownNode)
 		if nodeObj.type is "note"
 			formDialogService.runDialog({

@@ -382,8 +382,9 @@ class Converter extends Service
 							[pad, x, y, label, init, pad, text] = note_reg.exec(line)
 							x = parseInt(x, 10)
 							y = parseInt(y, 10) + 140
-							text = text.replace(/\\n/gi, '\n')
-							note = new Note({x: x, y: y, label: label, text: text, initialized: init})
+							text = text.toString().replace('\\\\n', '\n')
+							initialized = (parseInt(init, 10) is 1)
+							note = new Note({x: x, y: y, label: label, text: text, initialized: initialized})
 							note.fixed = true
 							net.addNote(note)
 						when "e"
