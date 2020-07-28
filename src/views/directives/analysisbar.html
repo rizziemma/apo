@@ -17,7 +17,8 @@
 			<div layout="row" layout-wrap>
 				<md-input-container
 					class="md-block"
-					ng-repeat="(inputId, input) in ab.formElements">
+					ng-repeat="input in ab.formElements"
+					ng-if="input.showInput(ab.formElements)">
 					<label ng-class="'input-label-' + input.type">{{ input.name }}</label>
     				<select required ng-if="input.type == 'select'" ng-model="input.value" style="margin-top: 30px !important;">
 	       				<option ng-repeat = "e in input.chooseFrom"

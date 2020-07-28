@@ -101,7 +101,7 @@ class @ExaminePn2 extends @Analyzer
 	#is S a siphon in net
 	#any transition putting token into the set also takes token from it
 	isSiphon: (net) -> (S) ->
-		if Set.length <= 0
+		if S.length <= 0
 			return "Empty"
 		siphon = true
 		for place in S
@@ -111,7 +111,7 @@ class @ExaminePn2 extends @Analyzer
 					siphon = false
 					preP = net.getPreset(t)
 					for p in preP
-						if p in S
+						if ListsHelper.includedId([p], S)
 							siphon = true
 							break
 					return false if not siphon

@@ -6,6 +6,14 @@ class @ListsHelper
 		for e1 in l1
 			l3.push e1 if e1 in l2
 		return l3
+	
+	@intersectionId: (l1, l2) ->
+		l3 = []
+		ids = []
+		ids = (e.id for e in l2)
+		for e in l1 when e.id in ids
+			l3.push e
+		return l3
 		
 	@union: (l1, l2) ->
 		l3 = []
@@ -15,15 +23,40 @@ class @ListsHelper
 			l3.push e2 if e2 not in l1
 		return l3
 		
+	@unionId: (l1, l2) ->
+		l3 = []
+		for e1 in l1
+			l3.push e1
+		ids = []
+		ids = (e.id for e in l1)
+		for e2 in l2 when e2.id not in ids
+			l3.push e2
+		return l3
+		
+		
 	@exclude: (l1, l2) ->
 		return l1.filter (e) -> e not in l2
+	
+	@excludeId: (l1, l2) ->
+		ids = []
+		ids = (e.id for e in l2)
+		return l1.filter (e) -> e.id not in ids
+		
 	@included: (l1, l2) ->
 		return false for e in l1 when (e not in l2)
 		return true
 	
+	@includedId: (l1, l2) ->
+		ids = []
+		ids = (e.id for e in l2)
+		return false for e in l1 when (e.id not in ids)
+		return true
 		
 	@equal: (l1, l2) ->
 		return @included(l1, l2) and @included(l2, l1)
+
+	@equalId: (l1, l2) ->
+		return @includedId(l1, l2) and @includedId(l2, l1)
 		
 	@generateAllSubSets: (set, predicate = ((e) -> true), index = false, max = false) ->
 		result = []

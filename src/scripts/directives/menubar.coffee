@@ -68,7 +68,7 @@ class MenubarController extends Controller
 					{
 						type: "select"
 						name: ""
-						value: ""
+						value: "ndr"
 						chooseFrom: [
 							{name: "APT", value: "apt"},
 							{name: "ND", value: "ndr"}
