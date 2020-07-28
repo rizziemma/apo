@@ -363,10 +363,11 @@ class Converter extends Service
 				for line in ndCode.split(/\n/)
 					switch line.split(" ")[0]
 						when "p"
-							[pad, x, y, pad, pad, id, tokens, pad, pad, label] = place_reg.exec(line)
+							[pad, x, y, pad, id1, id2, tokens, pad, pad, label] = place_reg.exec(line)
 							x = parseInt(x, 10)
 							y = parseInt(y, 10) + 140
 							tokens = parseInt(tokens, 10)
+							id = if id1? then id1 else id2
 							place = new Place({x: x, y: y, id: id, tokens: tokens, label: if label then label else id})
 							place.fixed = true
 							net.addNode(place)
@@ -496,28 +497,28 @@ class Converter extends Service
 				
 				
 			for e in net.edges
-				cp1 = ["",""]
-				cp2 = ["",""]
+				cp_txt = " "
 				if e.curvedPath
 					cp1 = @getPolar(e.cp[0], e.source)
 					cp2 = @getPolar(e.cp[1], e.target)
+					cp_txt = " "+cp1[0]+" "+cp1[1]+" "
 
 				if e.right is e.left #read arc
 					if e.target.type is "transition"
-						text = "e {"+e.source.id+"} "+cp1[0]+" "+cp1[1]+" {"+e.target.id+"} "+cp2[0]+" "+cp2[1]+" ?"+e.right+" n"
+						text = "e {"+e.source.id+"}"+cp_txt+"{"+e.target.id+"} "+cp2[0]+" "+cp2[1]+" ?"+e.right+" n"
 						rows.push(text)
 					else
-						text = "e {"+e.target.id+"} "+cp1[0]+" "+cp1[1]+" {"+e.source.id+"} "+cp2[0]+" "+cp2[1]+" ?"+e.right+" n"
+						text = "e {"+e.target.id+"}"+cp_txt+"{"+e.source.id+"} "+cp2[0]+" "+cp2[1]+" ?"+e.right+" n"
 						rows.push(text)
 				else
 					if e.right
-						text = "e {"+e.source.id+"} "+cp1[0]+" "+cp1[1]+" {"+e.target.id+"} "+cp2[0]+" "+cp2[1]+" "
+						text = "e {"+e.source.id+"}"+cp_txt+"{"+e.target.id+"} "+cp2[0]+" "+cp2[1]+" "
 						if e.rightType is "inhibitor"
 							text += "?-"
 						text += e.right+" n"
 						rows.push(text)
 					if e.left and e.left isnt e.right
-						text = "e {"+e.target.id+"} "+cp1[0]+" "+cp1[1]+" {"+e.source.id+"} "+cp2[0]+" "+cp2[1]+" "
+						text = "e {"+e.target.id+"}"+cp_txt+"{"+e.source.id+"} "+cp2[0]+" "+cp2[1]+" "
 						if e.leftType is "inhibitor"
 							text += "?-"
 						text += e.left+" n"
