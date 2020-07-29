@@ -198,15 +198,15 @@ class @AnalyzeSiphons extends AnalysisMenu
 	partition: (A, S) ->
 		B = []
 		while A.length > 0
-			P = A.pop()
-			Pin = P.Pin
+			P1 = A.pop()
+			Pin = P1.Pin
 			places = ListsHelper.excludeId(S, Pin)
-			while places.length > 0 and ListsHelper.intersectionId(P.Pout, Pin).length is 0
+			while places.length > 0 and ListsHelper.intersectionId(P1.Pout, Pin).length is 0
 				p = places.pop()
-				P = {G: P.G, Pin: Pin, Pout: ListsHelper.unionId(P.Pout, [p])}
-				[S2, P] = @findSiphon(P)
+				P2 = {G: P1.G, Pin: P1.Pin, Pout: ListsHelper.unionId(P1.Pout, [p])}
+				[S2, P2] = @findSiphon(P2)
 				if S2.length > 0
-					B.push(P)
+					B.push(P2)
 				Pin = Pin.concat [p]
 		return B
 		
