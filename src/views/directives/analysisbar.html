@@ -10,17 +10,18 @@
 		</div>
 	</md-toolbar>
 	
-	<div style="padding: 16px;position: absolute;top: 16px;">
+	<div style="padding: 16px;position: absolute;top: 60px;">
 		{{net.getActiveAnalysisMenu().description}}
 		
-		<form name="parameter" ng-submit="ab.complete()">
+		<form name="parameter" ng-submit="ab.complete()" style="margin-top:10px;">
 			<div layout="row" layout-wrap>
 				<md-input-container
 					class="md-block"
+					style="margin: 15px 0px 0px 0px;"
 					ng-repeat="input in ab.formElements"
 					ng-if="input.showInput(ab.formElements)">
 					<label ng-class="'input-label-' + input.type">{{ input.name }}</label>
-    				<select required ng-if="input.type == 'select'" ng-model="input.value" style="margin-top: 30px !important;">
+    				<select required ng-if="input.type == 'select'" ng-model="input.value" style="margin-top: 25px!important;">
 	       				<option ng-repeat = "e in input.chooseFrom"
 	          				value = "{{e.value}}">{{ e.name }}
 	       				</option>
@@ -35,17 +36,58 @@
 						error-message="input.error"
 						touched="input.touched"
 						validation="input.validation" />
+						
+					<md-contact-chips
+						ng-if="input.type == 'textArray' && input.chooseFrom"
+						ng-model="input.value"
+						md-contacts="ab.filterNotSelected(input.chooseFrom, input.value) | filter:$query"
+						md-contact-name="nicename"
+						md-filter-selected="'true'"
+						md-require-match="true"
+						placeholder="{{ input.placeholder }}"
+						secondary-placeholder="+">
+					</md-contact-chips>
 					<ng-message>{{ input.error }}</ng-message>
+					
+					<md-list class="fixedRows" flex layout="row" layout-wrap>
+						<md-list-item
+							ng-if="input.value.indexOf(item) < 0 && input.type != 'select'"
+							ng-repeat="(index, item) in input.chooseFrom"
+							flex-xs="100"
+							flex-gt-xs="48"
+							flex-gt-md="48"
+							flex-gt-lg="48"
+							class="md-2-line contact-item analysis-subnets-props">
+							<div layout="column">
+								<div class="md-list-item-text compact">
+									<h3>{{item.nicename}}</h3>
+									<p class="item-description">{{item.description}}</p>
+								</div>
+								<div>
+									<md-checkbox
+										ng-if="item.withCheckbox"
+										class="md-primary"
+										ng-model="item.checkbox.check"
+										ng-change="ab.updateValue(item)">
+										{{ item.checkbox.name }}
+									</md-checkbox>
+									<md-button class="md-primary" ng-click="input.value.push(item)" style="min-width: 30px !important; font-size: 25px;" >
+										+
+									</md-button>
+								</div>
+							</div>
+						</md-list-item>
+					</md-list>
 				</md-input-container>
 			</div>
 		</form>
 		<div ng-if="ab.result != ''">
 		<h3>Results <span ng-if="ab.result.from != undefined">{{ab.result.from}} to {{ab.result.to}}</span></h3>
 		
-			<md-list ng-if="ab.result.type == 'siphons'">
-				<md-list-item ng-repeat="siphon in ab.result.values">
-					<md-button class="md-primary siphon-button" ng-class="siphon.selected? 'selected':''" ng-click="console.log(this); ab.actionSiphon(siphon)">
-						{{siphon.text}}
+			<md-list ng-if="ab.result.type == 'subsets'">
+				<md-list-item ng-repeat="subset in ab.result.values">
+					<md-button class="md-primary subsets-button" ng-class="subset.selected? 'selected':''" ng-click="ab.actionSubset(subset)">
+						{{subset.text}}
 					</md-button>
 				</md-list-item>
 			</md-list>
@@ -57,13 +99,13 @@
 		</div>
 		
 		<md-dialog-actions layout="row">
-			<md-button ng-if="net.getActiveAnalysisMenu().download" class="md-primary" ng-click="ab.download()" ng-disabled="ab.result == '' || ab.result.type == 'no result'">
+			<md-button ng-if="net.getActiveAnalysisMenu().download" class="md-primary bar-button" ng-click="ab.download()" ng-disabled="ab.result == '' || ab.result.type == 'no result'">
 				{{net.getActiveAnalysisMenu().download}}
 			</md-button>
-			<md-button ng-if="net.getActiveAnalysisMenu().ok" class="md-primary" ng-click="ab.complete()">
+			<md-button ng-if="net.getActiveAnalysisMenu().ok" class="md-primary bar-button" ng-click="ab.complete()">
 				{{net.getActiveAnalysisMenu().ok}}
 			</md-button>
-			<md-button ng-if="net.getActiveAnalysisMenu().cancel" class="md-primary" ng-click="ab.cancel()">
+			<md-button ng-if="net.getActiveAnalysisMenu().cancel" class="md-primary bar-button" ng-click="ab.cancel()">
 				{{net.getActiveAnalysisMenu().cancel}}
 			</md-dialog-actions>
 		</div>

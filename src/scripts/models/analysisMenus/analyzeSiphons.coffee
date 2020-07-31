@@ -116,29 +116,11 @@ class @AnalyzeSiphons extends AnalysisMenu
 				S = if a.isSiphon(newP.G)(newP.Pin) then newP.Pin else []
 				return [S, newP]
 			if newP.Pout.length > 0
-				G = @red(newP.G, ListsHelper.excludeId(newP.G.getPlaces(), newP.Pout))
+				G = newP.G.red(ListsHelper.excludeId(newP.G.getPlaces(), newP.Pout))
 				newP = {G: G, Pin: newP.Pin, Pout: []}
 			[isReducible, newP] = @reduce(newP)
 		return [newP.G.getPlaces(), newP]
 			
-	red: (G, P) ->
-		net = new PetriNet({nodes: P})
-		id_places = []
-		id_places = (p.id for p in P)
-		id_transitions = []
-		for e in G.edges
-			if e.source.id in id_places
-				if e.target.id not in id_transitions
-					net.addNode(e.target)
-					id_transitions.push e.target.id
-				net.addEdge(new Edge({source: net.getNodeById(e.source.id), target: net.getNodeById(e.target.id), left: e.left, right: e.right}))
-			if e.target.id in id_places
-				if e.source.id not in id_transitions
-					net.addNode(e.source)
-					id_transitions.push e.source.id
-				net.addEdge(new Edge({source: net.getNodeById(e.source.id), target: net.getNodeById(e.target.id), left: e.left, right: e.right}))
-				
-		return net
 	
 	reduce: (P) ->
 		newP = P
@@ -182,7 +164,7 @@ class @AnalyzeSiphons extends AnalysisMenu
 		G1 = P.G
 		while p1.length > 0
 			p = p1[0]
-			G2 = @red(G1, ListsHelper.excludeId(S, [p]))
+			G2 = G1.red(ListsHelper.excludeId(S, [p]))
 			P2 = {G: G2, Pin: p2, Pout: []}
 			[S2, P2] = @findSiphon(P2)
 			if S2.length > 0
@@ -252,7 +234,7 @@ class @AnalyzeSiphons extends AnalysisMenu
 			}
 		else
 			return {
-				type: "siphons"
+				type: "subsets"
 				values: ({text: @setToString(s), value: s, selected: false} for s in siphons),
 				from: from,
 				to: to

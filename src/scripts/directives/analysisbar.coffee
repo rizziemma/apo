@@ -8,6 +8,13 @@ class AnalysisBarController extends Controller
 		@formElements = ""
 		@scope = $scope
 		
+		# ChipInput: All selected items are hidden from options list.
+		@chipInput = []
+		@filterNotSelected = (all, selected) ->
+			notSelected = []
+			notSelected.push(item) for item in all when selected.indexOf(item) < 0
+			return notSelected
+		
 
 	dismiss: () ->
 		@scope.net.getActiveAnalysisMenu().stop()
@@ -20,6 +27,11 @@ class AnalysisBarController extends Controller
 	complete: () ->
 		@result = @scope.net.getActiveAnalysisMenu().run(@scope.net)
 				
+	updateValue: (item) ->
+		if item.checkbox.check
+			item.nicename = item.checkbox.value + " " + item.id
+		else
+			item.nicename = item.id
 		
 	download: () ->
 		element = document.createElement('a')
@@ -35,14 +47,14 @@ class AnalysisBarController extends Controller
 	cancel: () ->
 		@result = @scope.net.getActiveAnalysisMenu().stop()
 		
-	actionSiphon: (siphon) ->
+	actionSubset: (subset) ->
 		for s in @result.values
 			s.selected = false
-		siphon.selected = true
+		subset.selected = true
 		
 		for p in @scope.net.nodes when p.type is "place"
 			p.siphon = false
-		for s in siphon.value
+		for s in subset.value
 			for p in @scope.net.getNodesByLabel(s.label)
 				p.siphon = true
 		@scope.restart()
@@ -54,6 +66,7 @@ class AnalysisBarController extends Controller
 			return toExport
 		else
 			return @result
+			
 class Analysisbar extends Directive
 	constructor: ->
 		return {

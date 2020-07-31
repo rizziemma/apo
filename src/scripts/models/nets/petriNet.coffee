@@ -31,6 +31,7 @@ class @PetriNet extends @Net
 		
 		@setAnalysisMenus([
 			new AnalyzeSiphons()
+			new AnalyzeSubnets()
 		])
 		
 	getPreset: (node) ->
@@ -236,4 +237,23 @@ class @PetriNet extends @Net
 					cp = clone(e.cp)
 				edge = new Edge({source: source, target: target, id: e.id, left: e.left, right: e.right, leftType: e.leftType, rightType: e.rightType, curvedPath: e.curvedPath, cp: cp})
 				net.addEdge(edge)
+		return net
+		
+	red: (P) ->
+		net = new PetriNet({nodes: P})
+		id_places = []
+		id_places = (p.id for p in P)
+		id_transitions = []
+		for e in @edges
+			if e.source.id in id_places
+				if e.target.id not in id_transitions
+					net.addNode(e.target)
+					id_transitions.push e.target.id
+				net.addEdge(new Edge({source: net.getNodeById(e.source.id), target: net.getNodeById(e.target.id), left: e.left, right: e.right}))
+			if e.target.id in id_places
+				if e.source.id not in id_transitions
+					net.addNode(e.source)
+					id_transitions.push e.source.id
+				net.addEdge(new Edge({source: net.getNodeById(e.source.id), target: net.getNodeById(e.target.id), left: e.left, right: e.right}))
+				
 		return net
