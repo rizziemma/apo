@@ -240,9 +240,10 @@ class @PetriNet extends @Net
 		return net
 		
 	red: (P) ->
-		net = new PetriNet({nodes: P})
+		net = new PetriNet()
+		net.nodes = (new Place(p) for p in P)
 		id_places = []
-		id_places = (p.id for p in P)
+		id_places = (p.id for p in net.nodes)
 		id_transitions = []
 		for e in @edges
 			if e.source.id in id_places

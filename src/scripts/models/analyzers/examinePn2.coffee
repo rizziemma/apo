@@ -26,21 +26,20 @@ class @ExaminePn2 extends @Analyzer
 		
 	isMarkedGraph: (net) ->
 		for node in net.nodes when node.type == "place"
-			return false if net.getPostset(node).length > 1
-			return false if net.getPreset(node).length >1
+			return false if net.getPostset(node).length isnt 1
+			return false if net.getPreset(node).length isnt 1
 		return true
 	
 	isJoinFree: (net) ->
 		for node in net.nodes when node.type == "transition"
-			return false if net.getPreset(node).length > 1
+			return false if net.getPreset(node).length isnt 1
 		return true
 	
 	isStateMachine: (net) ->
 		for node in net.nodes when node.type == "transition"
-			return false if net.getPostset(node).length > 1
-			return false if net.getPreset(node).length >1
+			return false if net.getPostset(node).length isnt 1
+			return false if net.getPreset(node).length isnt 1
 		return true
-	
 	
 	isAsymmetricChoice: (net) ->
 		for p1 in net.nodes when p1.type is "place"
@@ -137,6 +136,66 @@ class @ExaminePn2 extends @Analyzer
 					return false if not trap
 		return trap
 		
+	isStronglyConnected: (net) ->
+		visited = {}
+		
+		#random starting point
+		v = net.nodes[0]
+		
+		#reset the visited array
+		for n in net.nodes
+			visited[n.id] = false
+		
+		#start DFS
+		@DFS(net, v, visited, false)
+		
+		#if DFS doesnt visit all nodes, net not strongly connected
+		for n, b of visited
+			if not b
+				return false
+		
+		for n in net.nodes
+			visited[n.id] = false
+		
+		#start DFS reversed, visits nodes of reversed graph
+		@DFS(net, v, visited, true)
+		
+		for n, b of visited
+			if not b
+				return false
+		return true
+		
+	
+	DFS: (net, v, visited, reversed = false) ->
+		visited[v.id] = true
+		if reversed #reversed direction
+			for u in net.getPreset(v)
+				if not visited[u.id]
+					@DFS(net, u, visited, reversed)
+		else
+			for u in net.getPostset(v)
+				if not visited[u.id]
+					@DFS(net, u, visited, reversed)
+			
+	
+	#check recursivly if there is a directed path from n1 to n2
+	pathExists: (net, n1, n2, ni = false) ->
+		if ni is n1 #looped back on first place
+			return false
+			
+		if n1 is n2
+			return true
+		
+		if not ni then ni = n1
+		
+		post = net.getPostset(ni)
+		if n2 in post
+			return true
+		
+		for n in post
+			return true if @pathExists(net, n1, n2, n)
+		return false
+		
 	isUnmarked: (net) ->
 		return false for p in net.nodes when (p.type is "place" and p.inSelection and p.tokens > 0)
 		return true
@@ -157,6 +216,7 @@ class @ExaminePn2 extends @Analyzer
 		tests.push {name: "Pure", result: @isPure(net)}
 		tests.push {name: "NP-Simple-Side-Cond", result: @isNonPureSimpleSideCondition(net)}
 		tests.push {name: "Restricted-FC", result: @isRestrictedFC(net)}
+		tests.push {name: "Strongly-Connected", result: @isStronglyConnected(net)}
 		return tests
 		
 	

@@ -36,6 +36,14 @@
 						error-message="input.error"
 						touched="input.touched"
 						validation="input.validation" />
+					<input
+						ng-if="input.type == 'file'"
+						class="file-upload"
+						type="file"
+						fileread="input.value"
+						error-message="input.error"
+						onfileload="input.onfileload"
+						style="margin-top: 25px!important;" />
 						
 					<md-contact-chips
 						ng-if="input.type == 'textArray' && input.chooseFrom"
@@ -63,7 +71,7 @@
 									<h3>{{item.nicename}}</h3>
 									<p class="item-description">{{item.description}}</p>
 								</div>
-								<div>
+								<div style="margin: 0 auto;">
 									<md-checkbox
 										ng-if="item.withCheckbox"
 										class="md-primary"

@@ -60,7 +60,7 @@ class AnalysisBarController extends Controller
 		@scope.restart()
 		
 	exportResult: () ->
-		if	@result.type is "siphons"
+		if	@result.type is "subsets"
 			toExport = ""
 			toExport += line.text + "\n" for line in @result.values
 			return toExport

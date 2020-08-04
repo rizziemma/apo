@@ -12,26 +12,23 @@ class @AnalyzeSubnets extends AnalysisMenu
 		@index = false
 		@storage
 		@from = false
+		@subsetsFile
 		
 		@formElements = [
 			{
-				name: "Choose properties"
-				placeholder: "none"
-				type: "textArray"
-				value: []
+				name: "Subsets"
+				type: "select"
+				value: "bruteforce"
+				chooseFrom: [{name: "Generate all", value: "bruteforce"}, {name: "From file", value: "file"}]
 				showInput: (inputOptions) -> true
-				chooseFrom: [
-					{id: "marked-graph", nicename: "marked-graph", description: "pouet", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
-					{id: "state-machine", nicename: "state-machine", description: "truc", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
-					{id: "siphon", nicename: "siphon", description: "truc", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
-				]
 			}
 			{
 				name: "Type"
 				type: "select"
 				value: "all"
 				chooseFrom: [{name:"All subnets", value: "all"}, {name: "Minimal subnets", value: "min"}, {name: "Maximal subnets", value: "max"}]
-				showInput: (inputOptions) -> true
+				showInput: (inputOptions) ->
+					inputOptions[0].value is "bruteforce"
 			}
 			{
 				name: "Subnets displayed"
@@ -39,7 +36,39 @@ class @AnalyzeSubnets extends AnalysisMenu
 				value: 30
 				min: 1
 				max: 50
+				showInput: (inputOptions) ->
+					inputOptions[0].value is "bruteforce"
+			}
+			{
+				type: "file"
+				name: "Upload subsets"
+				onfileload: (text) ->
+					@value = text
+				showInput: (inputOptions) ->
+					inputOptions[0].value is "file"
+			}
+			{
+				name: "Choose properties"
+				placeholder: "none"
+				type: "textArray"
+				value: []
 				showInput: (inputOptions) -> true
+				chooseFrom: [
+					{id: "siphon", nicename: "siphon", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "choice free", nicename: "choice free", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "join free", nicename: "join free", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "marked graph", nicename: "marked graph", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "state machine", nicename: "state machine", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "asym. choice", nicename: "asym. choice", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "free choice", nicename: "free choice", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "equal conflict", nicename: "equal conflict", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "homogeneous", nicename: "homogeneous", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "pure", nicename: "pure", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "simple side cond", nicename: "simple side cond", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "restricted FC", nicename: "restricted FC", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "strongly connected", nicename: "strongly connected", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					
+				]
 			}
 		]
 	
@@ -51,7 +80,7 @@ class @AnalyzeSubnets extends AnalysisMenu
 		return string
 		
 	#for each predicate selected, check if true or false
-	@checkPredicates: (options) -> (net) -> (subset) ->
+	checkPredicates: (options) -> (net) -> (subset) ->
 		cond = true
 		examPn = new ExaminePn2()
 		examSub = new ExamineSubPn()
@@ -59,14 +88,44 @@ class @AnalyzeSubnets extends AnalysisMenu
 		for option in options
 			#switch because no fixed args + check if negation
 			switch option.id
-				when "marked-graph"
-					cond = (examPn.isMarkedGraph(subnet) is not option.checkbox.check)
-					break
-				when "state-machine"
-					cond = (examPn.isStateMachine(subnet) is not option.checkbox.check)
-					break
 				when "siphon"
 					cond = (examPn.isSiphon(net)(subset) is not option.checkbox.check)
+					break
+				when "choice free"
+					cond = (examPn.isChoiceFree(subnet) is not option.checkbox.check)
+					break
+				when "join free"
+					cond = (examPn.isJoinFree(subnet) is not option.checkbox.check)
+					break
+				when "marked graph"
+					cond = (examPn.isMarkedGraph(subnet) is not option.checkbox.check)
+					break
+				when "state machine"
+					cond = (examPn.isStateMachine(subnet) is not option.checkbox.check)
+					break
+				when "asym. choice"
+					cond = (examPn.isAsymmetricChoice(subnet) is not option.checkbox.check)
+					break
+				when "free choice"
+					cond = (examPn.isFreeChoice(subnet) is not option.checkbox.check)
+					break
+				when "equal conflict"
+					cond = (examPn.isEqualConflict(subnet) is not option.checkbox.check)
+					break
+				when "homogeneous"
+					cond = (examPn.isHomogeneous(subnet) is not option.checkbox.check)
+					break
+				when "pure"
+					cond = (examPn.isPure(subnet) is not option.checkbox.check)
+					break
+				when "simple side cond"
+					cond = (examPn.isNonPureSimpleSideCondition(subnet) is not option.checkbox.check)
+					break
+				when "restricted FC"
+					cond = (examPn.isRestrictedFC(subnet) is not option.checkbox.check)
+					break
+				when "strongly connected"
+					cond = (examPn.isStronglyConnected(subnet) is not option.checkbox.check)
 					break
 			return false if not cond
 		return cond
@@ -80,7 +139,7 @@ class @AnalyzeSubnets extends AnalysisMenu
 					@from = 1
 					@index = 1
 					@storage = []
-				[results, more, lastIndex] = ListsHelper.generateAllSubSets(places, (AnalyzeSubnets.checkPredicates(predicates)(net)), @index, max)
+				[results, more, lastIndex] = ListsHelper.generateAllSubSets(places, (@checkPredicates(predicates)(net)), @index, max)
 				break
 			when "min"
 				if @ok is "Run"
@@ -109,11 +168,33 @@ class @AnalyzeSubnets extends AnalysisMenu
 			@ok = "Run"
 		return [results, from, to]
 	
-	
+	getSubnetsFromFile: (net, predicates, file) ->
+		subsets = []
+		#parse file
+		for line in file.split('\n')
+			subset_text = line.split(' ')
+			subset = []
+			for p in subset_text
+				if p isnt ""
+					subset.push net.getNodesByLabel(p)[0]
+			if subset.length > 0
+				subsets.push subset
+				
+		#check subsets
+		result = []
+		for subset in subsets
+			if @checkPredicates(predicates)(net)(subset)
+				result.push subset
+		return [result, 1, result.length]
+			
 	run: (currentNet) ->
 		net = currentNet.getNetWithNoSharedPlaces()
 		result = []
-		[result, from, to] = @getSubnetsBruteForce(net, @formElements[0].value, @formElements[1].value, @formElements[2].value)
+		switch @formElements[0].value
+			when "bruteforce"
+				[result, from, to] = @getSubnetsBruteForce(net, @formElements[4].value, @formElements[1].value, @formElements[2].value)
+			when "file"
+				[result, from, to] = @getSubnetsFromFile(net, @formElements[4].value, @formElements[3].value)
 		
 		if result.length <= 0
 			return {
