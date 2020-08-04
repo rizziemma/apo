@@ -303,21 +303,16 @@ class Editor extends Controller
 				#notes
 				notes = notes.data(net.notes, (note) -> note.id)
 				
-				notes.selectAll('.note')
-				.classed('selected', (note) -> note.selected)
 				
 				d3.selectAll('.noteText')
-				.html((note)->"<div id='noteText"+note.id+"'>"+converterService.getNodeFromData(note).getSvgText()+"</div")
+				.html((note)->"<div id='noteText"+note.id+"' style='width: max-content;height: max-content;'>"+converterService.getNodeFromData(note).getSvgText()+"</div")
 				
 				# add new notes
 				newNotes = notes.enter().append('svg:g')
-				newNotes.append((note) -> document.createElementNS("http://www.w3.org/2000/svg", note.shape))
-				.attr('class', (note) -> note.type)
-				.classed('selected', (note) -> note.selected)
 				
 				newNotes.append('foreignObject')
 				.classed('noteText', true)
-				.html((note)->"<div id='noteText"+note.id+"'>"+converterService.getNodeFromData(note).getSvgText()+"</div")
+				.html((note)->"<div id='noteText"+note.id+"' style='width: max-content;'>"+converterService.getNodeFromData(note).getSvgText()+"</div")
 				.on 'mouseover', (note) ->
 					return if !mouseDownNode or note == mouseDownNode or !net.isConnectable(mouseDownNode, note)
 					d3.select(this).style('fill', 'rgb(235, 235, 235)') # highlight target note
@@ -347,13 +342,10 @@ class Editor extends Controller
 				
 				notes.exit().remove() # remove old nodes
 				
-				notes.selectAll('.note')
-				.attr('height', (note) -> (Math.max(note.height, document.getElementById('noteText'+note.id).getBoundingClientRect().height)) / scaleVar)
-				.attr('width',  (note) -> (Math.max(note.width,  document.getElementById('noteText'+note.id).getBoundingClientRect().width)) / scaleVar)
 				
 				notes.selectAll('.noteText')
-				.attr('height', (note) -> (Math.max(note.height, document.getElementById('noteText'+note.id).getBoundingClientRect().height)) / scaleVar)
-				.attr('width',  (note) -> (Math.max(note.width,  document.getElementById('noteText'+note.id).getBoundingClientRect().width)) / scaleVar)
+				.attr('height', (note) -> (Math.max(note.height, document.getElementById('noteText'+note.id).getBoundingClientRect().height)+20) / scaleVar)
+				.attr('width',  (note) -> (Math.max(note.width,  document.getElementById('noteText'+note.id).getBoundingClientRect().width)+20) / scaleVar)
 				
 				#add control points
 				cp = cp.data(net.controlPoints())

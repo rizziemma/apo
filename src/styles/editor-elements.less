@@ -45,16 +45,11 @@
 	}
 }
 
-
-.note {
-	fill: #ffffcc;
-	stroke: grey;
-	stroke-width: 0.5px;
-	cursor: auto;
-}
 .noteText {
 	div {
-		display: inline-block;
+		background-color: #ffffcc;
+		border: 1px grey solid;
+		cursor: auto;
 		padding: 10px;
 	}
 }
@@ -98,7 +93,7 @@
 		cursor: move;
 	}
 	
-	.note {
+	.noteText {
 		cursor: move;
 	}
 }
@@ -117,6 +112,9 @@
 			stroke-width: 4px;
 			fill :  #e6e6ff;
 		}
+	}
+	.noteText{
+		cursor: pointer;
 	}
 }
 // Token mode
@@ -162,7 +160,7 @@
 		.node {
 			cursor: text;
 		}
-		.note {
+		.noteText {
 			cursor: text;
 		}
 	}
