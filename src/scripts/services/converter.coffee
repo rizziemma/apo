@@ -497,28 +497,30 @@ class Converter extends Service
 				
 				
 			for e in net.edges
-				cp_txt = " "
+				cp1_txt = " "
+				cp2_txt = " "
 				if e.curvedPath
 					cp1 = @getPolar(e.cp[0], e.source)
 					cp2 = @getPolar(e.cp[1], e.target)
-					cp_txt = " "+cp1[0]+" "+cp1[1]+" "
+					cp1_txt = " "+cp1[0]+" "+cp1[1]+" "
+					cp2_txt = " "+cp2[0]+" "+cp2[1]+" "
 
 				if e.right is e.left #read arc
 					if e.target.type is "transition"
-						text = "e {"+e.source.id+"}"+cp_txt+"{"+e.target.id+"} "+cp2[0]+" "+cp2[1]+" ?"+e.right+" n"
+						text = "e {"+e.source.id+"}"+cp_txt+"{"+e.target.id+"}"+cp2_text+"?"+e.right+" n"
 						rows.push(text)
 					else
-						text = "e {"+e.target.id+"}"+cp_txt+"{"+e.source.id+"} "+cp2[0]+" "+cp2[1]+" ?"+e.right+" n"
+						text = "e {"+e.target.id+"}"+cp_txt+"{"+e.source.id+"}"+cp2_text+"?"+e.right+" n"
 						rows.push(text)
 				else
 					if e.right
-						text = "e {"+e.source.id+"}"+cp_txt+"{"+e.target.id+"} "+cp2[0]+" "+cp2[1]+" "
+						text = "e {"+e.source.id+"}"+cp_txt+"{"+e.target.id+"}"+cp2_text+
 						if e.rightType is "inhibitor"
 							text += "?-"
 						text += e.right+" n"
 						rows.push(text)
 					if e.left and e.left isnt e.right
-						text = "e {"+e.target.id+"}"+cp_txt+"{"+e.source.id+"} "+cp2[0]+" "+cp2[1]+" "
+						text = "e {"+e.target.id+"}"+cp_txt+"{"+e.source.id+"}"+cp2_text+
 						if e.leftType is "inhibitor"
 							text += "?-"
 						text += e.left+" n"
