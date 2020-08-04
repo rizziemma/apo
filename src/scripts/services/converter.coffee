@@ -507,20 +507,20 @@ class Converter extends Service
 
 				if e.right is e.left #read arc
 					if e.target.type is "transition"
-						text = "e {"+e.source.id+"}"+cp1_txt+"{"+e.target.id+"}"+cp2_text+"?"+e.right+" n"
+						text = "e {"+e.source.id+"}"+cp1_txt+"{"+e.target.id+"}"+cp2_txt+"?"+e.right+" n"
 						rows.push(text)
 					else
-						text = "e {"+e.target.id+"}"+cp1_txt+"{"+e.source.id+"}"+cp2_text+"?"+e.right+" n"
+						text = "e {"+e.target.id+"}"+cp1_txt+"{"+e.source.id+"}"+cp2_txt+"?"+e.right+" n"
 						rows.push(text)
 				else
 					if e.right
-						text = "e {"+e.source.id+"}"+cp1_txt+"{"+e.target.id+"}"+cp2_text+
+						text = "e {"+e.source.id+"}"+cp1_txt+"{"+e.target.id+"}"+cp2_txt+
 						if e.rightType is "inhibitor"
 							text += "?-"
 						text += e.right+" n"
 						rows.push(text)
 					if e.left and e.left isnt e.right
-						text = "e {"+e.target.id+"}"+cp1_txt+"{"+e.source.id+"}"+cp2_text+
+						text = "e {"+e.target.id+"}"+cp1_txt+"{"+e.source.id+"}"+cp2_txt+
 						if e.leftType is "inhibitor"
 							text += "?-"
 						text += e.left+" n"
