@@ -19,8 +19,8 @@ class AnalysisBarController extends Controller
 	dismiss: () ->
 		@scope.net.getActiveAnalysisMenu().stop()
 		@result = ""
-		for p in @scope.net.nodes when p.type is "place"
-			p.siphon = false
+		for p in @scope.net.nodes
+			p.selected = false
 		@scope.net.activeAnalysisMenu = null
 		@scope.restart()
 		
@@ -45,18 +45,19 @@ class AnalysisBarController extends Controller
 		return false
 		
 	cancel: () ->
-		@result = @scope.net.getActiveAnalysisMenu().stop()
+		@result = ""
+		@scope.net.getActiveAnalysisMenu().stop()
 		
 	actionSubset: (subset) ->
 		for s in @result.values
 			s.selected = false
 		subset.selected = true
 		
-		for p in @scope.net.nodes when p.type is "place"
-			p.siphon = false
+		for p in @scope.net.nodes
+			p.selected = false
 		for s in subset.value
 			for p in @scope.net.getNodesByLabel(s.label)
-				p.siphon = true
+				p.selected = true
 		@scope.restart()
 		
 	exportResult: () ->

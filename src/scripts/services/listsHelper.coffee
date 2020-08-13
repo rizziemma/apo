@@ -73,6 +73,21 @@ class @ListsHelper
 			i++
 		return [result, (i < 1 << set.length), i]
 		
+	@findSubset: (set, predicate) ->
+		i = 1
+		while (i < (1 << set.length))
+			subset = []
+			j = 0
+			while (j < set.length)
+				if (i & (1 << j))
+					subset.push(set[j])
+				j++
+			if predicate(subset)
+				return true
+			i++
+		return false
+		
+		
 	#implementation of Gosper's Hack
 	#see http://programmingforinsomniacs.blogspot.com/2018/03/gospers-hack-explained.html
 	@GospersHack: (k, iter = false, set, predicate = ((e) -> true), result = [], knownResults = [], maxResults = false, order = false) ->

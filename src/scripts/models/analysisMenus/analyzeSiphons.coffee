@@ -11,6 +11,7 @@ class @AnalyzeSiphons extends AnalysisMenu
 		@icon = "cached"
 		@index = false
 		@storage
+		@type = "p"
 		@from = false
 		@formElements = [
 			{
@@ -116,7 +117,7 @@ class @AnalyzeSiphons extends AnalysisMenu
 				S = if a.isSiphon(newP.G)(newP.Pin) then newP.Pin else []
 				return [S, newP]
 			if newP.Pout.length > 0
-				G = newP.G.red(ListsHelper.excludeId(newP.G.getPlaces(), newP.Pout))
+				G = newP.G.PTSubnet(ListsHelper.excludeId(newP.G.getPlaces(), newP.Pout))
 				newP = {G: G, Pin: newP.Pin, Pout: []}
 			[isReducible, newP] = @reduce(newP)
 		return [newP.G.getPlaces(), newP]
@@ -164,7 +165,7 @@ class @AnalyzeSiphons extends AnalysisMenu
 		G1 = P.G
 		while p1.length > 0
 			p = p1[0]
-			G2 = G1.red(ListsHelper.excludeId(S, [p]))
+			G2 = G1.PTSubnet(ListsHelper.excludeId(S, [p]))
 			P2 = {G: G2, Pin: p2, Pout: []}
 			[S2, P2] = @findSiphon(P2)
 			if S2.length > 0

@@ -80,9 +80,19 @@
 }
 
 .Analyze{
-	.siphon {
-		stroke: #00ffcc;
-		stroke-width: 3px;
+	.inSubnet {
+			stroke: #9999ff !important;
+			stroke-width: 4px;
+			stroke-dasharray: 10,5;
+		}
+	.node {
+		cursor: pointer;
+		&.selected {
+			stroke-dasharray: none !important;
+			stroke: #4d4dff !important;
+			stroke-width: 4px;
+			fill :  #e6e6ff;
+		}
 	}
 }
 .Fix.Nodes {

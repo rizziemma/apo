@@ -128,10 +128,11 @@ class @Net
 			temp[key] = clone(obj[key])
 		temp
 		
-	inSubnet: (node) ->
+	inSubnet: (node, option) ->
 		return true if node.selected
-		for n in @getPreset(node).concat @getPostset(node)
-			return true if n.selected
+		if option isnt "g"
+			for n in @getPreset(node).concat @getPostset(node)
+				return true if n.selected
 		return false
 		
 		

@@ -239,22 +239,42 @@ class @PetriNet extends @Net
 				net.addEdge(edge)
 		return net
 		
-	red: (P) ->
+	
+	PTSubnet: (N) ->
 		net = new PetriNet()
-		net.nodes = (new Place(p) for p in P)
-		id_places = []
-		id_places = (p.id for p in net.nodes)
-		id_transitions = []
+		net.nodes = []
+		for n in N
+			net.nodes.push(new Place(n)) if n.type is "place"
+			net.nodes.push(new Transition(n)) if n.type is "transition"
+		ids = []
+		ids = (n.id for n in net.nodes)
 		for e in @edges
-			if e.source.id in id_places
-				if e.target.id not in id_transitions
-					net.addNode(e.target)
-					id_transitions.push e.target.id
+			if e.source.id in ids
+				if not net.getNodeById(e.target.id)
+					net.nodes.push(new Place(e.target)) if e.target.type is "place"
+					net.nodes.push(new Transition(e.target)) if e.target.type is "transition"
 				net.addEdge(new Edge({source: net.getNodeById(e.source.id), target: net.getNodeById(e.target.id), left: e.left, right: e.right}))
-			if e.target.id in id_places
-				if e.source.id not in id_transitions
-					net.addNode(e.source)
-					id_transitions.push e.source.id
+			else if e.target.id in ids
+				if not net.getNodeById(e.source.id)
+					net.nodes.push(new Place(e.source)) if e.source.type is "place"
+					net.nodes.push(new Transition(e.source)) if e.source.type is "transition"
 				net.addEdge(new Edge({source: net.getNodeById(e.source.id), target: net.getNodeById(e.target.id), left: e.left, right: e.right}))
-				
+		
 		return net
+	
+	subGraph: (N) ->
+		net = new PetriNet()
+		for n in N
+			net.nodes.push(new Place(n)) if n.type is "place"
+			net.nodes.push(new Transition(n)) if n.type is "transition"
+		
+		for e in @edges
+			source = net.getNodeById(e.source.id)
+			target = net.getNodeById(e.target.id)
+			if source and target
+				net.addEdge(new Edge ({source: source, target: target, left: e.left, right: e.right}))
+		
+		return net
+	
+	
+		

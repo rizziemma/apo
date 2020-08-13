@@ -157,8 +157,7 @@ class Editor extends Controller
 				# update existing links
 				edges.style('marker-start', (edge) -> edge = new Edge(edge); edge.markerStart())
 				edges.style('marker-end', (edge) -> edge = new Edge(edge); edge.markerEnd())
-				#edges.style('marker-mid', (edge) -> edge = new Edge(edge); edge.markerMid(net.type))
-				edges.classed('inSubnet', (edge) -> edge = new Edge(edge); edge.inSubnet())
+				edges.classed('inSubnet', (edge) -> (if net.getActiveAnalysisMenu() then (edge = new Edge(edge); edge.inSubnet(net.getActiveAnalysisMenu().type)) else false))
 				# update existing edge labels
 				d3.selectAll('.edgeLabel .text').text((edge) -> converterService.getEdgeFromData(edge).getText())
 				d3.selectAll('.arrowmid .text').text((edge) -> converterService.getEdgeFromData(edge).markerMid(net.type))
@@ -182,7 +181,7 @@ class Editor extends Controller
 					#.style('marker-mid', (edge) -> edge = new Edge(edge); edge.markerMid(net.type))
 					.attr('id', (edge) -> edge.id)
 					.classed('edge', true)
-					.classed('inSubnet', (edge) -> edge = new Edge(edge);  edge.inSubnet())
+					.classed('inSubnet', (edge) -> (if net.getActiveAnalysisMenu() then (edge = new Edge(edge); edge.inSubnet(net.getActiveAnalysisMenu().type)) else false))
 					.on 'mousedown', (edge) ->
 						mouseDownEdge = edge
 						selectedNode = null
@@ -201,8 +200,8 @@ class Editor extends Controller
 				# update existing nodes
 				nodes.selectAll('.node').classed('firable', (node) ->  net.isFirable(node))
 				nodes.selectAll('.node').classed('selected', (node) -> node.selected)
-				nodes.selectAll('.node').classed('inSubnet', (node) -> net.inSubnet(node))
-				nodes.selectAll('.node').classed('siphon', (node) ->  node.siphon)
+				nodes.selectAll('.node').classed('inSubnet', (node) -> (if net.getActiveAnalysisMenu() then (net.inSubnet(node, net.getActiveAnalysisMenu().type)) else false))
+				nodes.selectAll('.node').classed('highlight', (node) ->  node.highlight)
 
 				# update existing node labels
 				d3.selectAll('.nodeLabel').text((node) -> converterService.getNodeFromData(node).getText())
@@ -219,8 +218,8 @@ class Editor extends Controller
 				.attr('height', (node) -> node.height)
 				.classed('firable', (node) ->  net.isFirable(node))
 				.classed('selected', (node) -> node.selected)
-				.classed('inSubnet', (node) -> net.inSubnet(node))
-				.classed('siphon', (node) ->  node.siphon)
+				.classed('inSubnet', (node) -> (if net.getActiveAnalysisMenu() then (net.inSubnet(node, net.getActiveAnalysisMenu().type)) else false))
+				.classed('highlight', (node) ->  node.highlight)
 				.on 'mouseover', (node) ->
 					return if !mouseDownNode or node == mouseDownNode or !net.isConnectable(mouseDownNode, node)
 					d3.select(this).style('fill', 'rgb(235, 235, 235)') # highlight target node

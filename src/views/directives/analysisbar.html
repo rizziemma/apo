@@ -17,11 +17,11 @@
 			<div layout="row" layout-wrap>
 				<md-input-container
 					class="md-block"
-					style="margin: 15px 0px 0px 0px;"
+					style="margin: 0px;"
 					ng-repeat="input in ab.formElements"
 					ng-if="input.showInput(ab.formElements)">
 					<label ng-class="'input-label-' + input.type">{{ input.name }}</label>
-    				<select required ng-if="input.type == 'select'" ng-model="input.value" style="margin-top: 25px!important;">
+    				<select required ng-if="input.type == 'select'" ng-model="input.value" style="margin-top: 25px!important; margin-bottom: 15px!important;">
 	       				<option ng-repeat = "e in input.chooseFrom"
 	          				value = "{{e.value}}">{{ e.name }}
 	       				</option>
@@ -66,12 +66,12 @@
 							flex-gt-md="48"
 							flex-gt-lg="48"
 							class="md-2-line contact-item analysis-subnets-props">
-							<div layout="column">
-								<div class="md-list-item-text compact">
+							<div layout="column" title="{{item.description}}">
+								<div layout="row" class="md-list-item-text compact">
 									<h3>{{item.nicename}}</h3>
-									<p class="item-description">{{item.description}}</p>
+									<ng-md-icon ng-if='item.description != ""' icon="info" style="fill: rgba(0, 0, 0, .5);margin-left: 5px;" size="20" aria-label="New">hover </ng-md-icon>
 								</div>
-								<div style="margin: 0 auto;">
+								<div layout="row" style="margin: 0 auto;">
 									<md-checkbox
 										ng-if="item.withCheckbox"
 										class="md-primary"

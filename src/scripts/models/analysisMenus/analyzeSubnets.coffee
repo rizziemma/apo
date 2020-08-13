@@ -13,24 +13,25 @@ class @AnalyzeSubnets extends AnalysisMenu
 		@storage
 		@from = false
 		@subsetsFile
+		@type
 		
 		@formElements = [
-			{
+			{#0
 				name: "Subsets"
 				type: "select"
 				value: "bruteforce"
 				chooseFrom: [{name: "Generate all", value: "bruteforce"}, {name: "From file", value: "file"}]
 				showInput: (inputOptions) -> true
 			}
-			{
-				name: "Type"
+			{#1
+				name: "Subnets"
 				type: "select"
 				value: "all"
 				chooseFrom: [{name:"All subnets", value: "all"}, {name: "Minimal subnets", value: "min"}, {name: "Maximal subnets", value: "max"}]
 				showInput: (inputOptions) ->
 					inputOptions[0].value is "bruteforce"
 			}
-			{
+			{#2
 				name: "Subnets displayed"
 				type: "number"
 				value: 30
@@ -39,7 +40,15 @@ class @AnalyzeSubnets extends AnalysisMenu
 				showInput: (inputOptions) ->
 					inputOptions[0].value is "bruteforce"
 			}
-			{
+			{#3
+				name: "Type"
+				type: "select"
+				value: "p"
+				chooseFrom: [{name:"P-subnets", value: "p"}, {name: "T-subnets", value: "t"}, {name: "P+T-subnets", value: "p+t"}, {name: "subgraphs", value: "g"}]
+				showInput: (inputOptions) ->
+					inputOptions[0].value is "bruteforce"
+			}
+			{#4
 				type: "file"
 				name: "Upload subsets"
 				onfileload: (text) ->
@@ -47,14 +56,25 @@ class @AnalyzeSubnets extends AnalysisMenu
 				showInput: (inputOptions) ->
 					inputOptions[0].value is "file"
 			}
-			{
+			{#5
+				name: "Type"
+				type: "select"
+				value: "p+t"
+				chooseFrom: [{name: "P+T-subnets", value: "p+t"}, {name: "subgraphs", value: "g"}]
+				showInput: (inputOptions) ->
+					inputOptions[0].value is "file"
+			}
+			{#6
 				name: "Choose properties"
 				placeholder: "none"
 				type: "textArray"
 				value: []
 				showInput: (inputOptions) -> true
 				chooseFrom: [
-					{id: "siphon", nicename: "siphon", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "siphon", nicename: "siphon", description: "Warning: will ignore all subsets containing transitions.", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "trap", nicename: "trap", description: "Warning: will ignore all subsets containing transitions.", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "⊆ siphon", nicename: "⊆ siphon", description: "Includes a siphon. Warning: will ignore all subsets containing transitions.", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
+					{id: "⊆ trap", nicename: "⊆ trap", description: "Includes a trap. Warning: will ignore all subsets containing transitions.", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
 					{id: "choice free", nicename: "choice free", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
 					{id: "join free", nicename: "join free", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
 					{id: "marked graph", nicename: "marked graph", description: "", withCheckbox: true, checkbox : {name: "not", value: "¬", check: false}}
@@ -84,12 +104,25 @@ class @AnalyzeSubnets extends AnalysisMenu
 		cond = true
 		examPn = new ExaminePn2()
 		examSub = new ExamineSubPn()
-		subnet = net.red(subset)
-		for option in options
+		if options.type is "g"
+			subnet = net.subGraph(subset)
+		else
+			subnet = net.PTSubnet(subset)
+		
+		for option in options.predicates
 			#switch because no fixed args + check if negation
 			switch option.id
 				when "siphon"
 					cond = (examPn.isSiphon(net)(subset) is not option.checkbox.check)
+					break
+				when "trap"
+					cond = (examPn.isTrap(net)(subset) is not option.checkbox.check)
+					break
+				when "⊆ siphon"
+					cond = (examPn.containsSiphon(net)(subset) is not option.checkbox.check)
+					break
+				when "⊆ trap"
+					cond = (examPn.containsTrap(net)(subset) is not option.checkbox.check)
 					break
 				when "choice free"
 					cond = (examPn.isChoiceFree(subnet) is not option.checkbox.check)
@@ -131,29 +164,44 @@ class @AnalyzeSubnets extends AnalysisMenu
 		return cond
 	
 	
-	getSubnetsBruteForce: (net, predicates, option, max) ->
-		places = net.getPlaces()
-		switch option
+	getSubnetsBruteForce: (net, options) ->
+		#generate the set to iterate over
+		set = []
+		switch options.type
+			when "p"
+				set = net.getPlaces()
+				break
+			when "t"
+				set = net.getTransitions()
+				break
+			when "p+t"
+				set = net.nodes
+				break
+			when "g"
+				set = net.nodes
+				break
+		
+		switch options.subnets
 			when "all"
 				if @ok is "Run"
 					@from = 1
 					@index = 1
 					@storage = []
-				[results, more, lastIndex] = ListsHelper.generateAllSubSets(places, (@checkPredicates(predicates)(net)), @index, max)
+				[results, more, lastIndex] = ListsHelper.generateAllSubSets(set, (@checkPredicates(options)(net)), @index, options.max)
 				break
 			when "min"
 				if @ok is "Run"
 					@from = 1
 					@index = {k: false, i : false}
 					@storage = []
-				[results, more, lastIndex, @storage] = ListsHelper.generateMinSubSets(places, (@checkPredicates(predicates)(net)), @index, max, @storage)
+				[results, more, lastIndex, @storage] = ListsHelper.generateMinSubSets(set, (@checkPredicates(options)(net)), @index, options.max, @storage)
 				break
 			when "max"
 				if @ok is "Run"
 					@from = 1
 					@index = {k: false, i : false}
 					@storage = []
-				[results, more, lastIndex, @storage] = ListsHelper.generateMaxSubSets(places, (@checkPredicates(predicates)(net)), @index, max, @storage)
+				[results, more, lastIndex, @storage] = ListsHelper.generateMaxSubSets(set, (@checkPredicates(options)(net)), @index, options.max, @storage)
 				break
 			else
 				return []
@@ -168,7 +216,7 @@ class @AnalyzeSubnets extends AnalysisMenu
 			@ok = "Run"
 		return [results, from, to]
 	
-	getSubnetsFromFile: (net, predicates, file) ->
+	getSubnetsFromFile: (net, options, file) ->
 		subsets = []
 		#parse file
 		for line in file.split('\n')
@@ -183,7 +231,7 @@ class @AnalyzeSubnets extends AnalysisMenu
 		#check subsets
 		result = []
 		for subset in subsets
-			if @checkPredicates(predicates)(net)(subset)
+			if @checkPredicates(options)(net)(subset)
 				result.push subset
 		return [result, 1, result.length]
 			
@@ -192,9 +240,11 @@ class @AnalyzeSubnets extends AnalysisMenu
 		result = []
 		switch @formElements[0].value
 			when "bruteforce"
-				[result, from, to] = @getSubnetsBruteForce(net, @formElements[4].value, @formElements[1].value, @formElements[2].value)
+				@type = @formElements[3].value
+				[result, from, to] = @getSubnetsBruteForce(net, {subnets: @formElements[1].value, max: @formElements[2].value, type: @formElements[3].value, predicates: @formElements[6].value})
 			when "file"
-				[result, from, to] = @getSubnetsFromFile(net, @formElements[4].value, @formElements[3].value)
+				@type = @formElements[5].value
+				[result, from, to] = @getSubnetsFromFile(net, {type: @formElements[5].value, predicates: @formElements[6].value},@formElements[4].value)
 		
 		if result.length <= 0
 			return {

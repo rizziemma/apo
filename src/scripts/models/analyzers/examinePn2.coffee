@@ -97,13 +97,14 @@ class @ExaminePn2 extends @Analyzer
 				return false for t in post when (net.getPreset(t)).length > 1
 		return true
 	
-	#is S a siphon in net
+	#is S a siphon in net?
 	#any transition putting token into the set also takes token from it
 	isSiphon: (net) -> (S) ->
 		if S.length <= 0
 			return "Empty"
 		siphon = true
 		for place in S
+			return false if place.type isnt "place"
 			preT = net.getPreset(place)
 			if preT.length > 0
 				for t in preT
@@ -116,26 +117,36 @@ class @ExaminePn2 extends @Analyzer
 					return false if not siphon
 		return siphon
 	
-	#is T a trap in net
+	#does S contains a siphon?
+	containsSiphon: (net) -> (S) ->
+		return ListsHelper.findSubset(S, (new ExaminePn2).isSiphon(net))
+	
+	#is T a trap in net?
 	#any transition taking tokens from the set also puts token into it
-	isTrap: (net) -> (T)	->
+	isTrap: (net) -> (T) ->
 		if T.length <= 0
 			return "Empty"
 			
 		trap = true
 		for place in T
+			return false if place.type isnt "place"
 			postT = net.getPostset(place)
 			if postT.length > 0
 				for t in postT
 					trap = false
 					postP = net.getPostset(t)
 					for p in postP
-						if p in T
+						if ListsHelper.includedId([p], T)
 							trap = true
 							break
 					return false if not trap
 		return trap
+	
+	#does T contains a trap?
+	containsTrap: (net) -> (T) ->
+		return ListsHelper.findSubset(T, (new ExaminePn2).isTrap(net))
 		
+	
 	isStronglyConnected: (net) ->
 		visited = {}
 		

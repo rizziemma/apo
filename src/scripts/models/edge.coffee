@@ -88,6 +88,12 @@ class @Edge
 					return '◀'
 		return ''
 		
-	inSubnet: () ->
-		return @source.selected or @target.selected
+	inSubnet: (option) ->
+		if option
+			if option is "g"
+				return @source.selected and @target.selected
+			else
+				return @source.selected or @target.selected
+		else
+			false
 	
