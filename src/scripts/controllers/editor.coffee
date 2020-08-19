@@ -75,6 +75,9 @@ class Editor extends Controller
 					dragLine.attr("transform", "translate(" + translateVar + ")" + " scale(" + scaleVar + ")")
 					
 			zoom = d3.behavior.zoom()
+				.translate([0, 0])
+				.scale(1)
+				.scaleExtent([-8, 8])
 				.on("zoom", -> zoomed())
 					
 			d3.select('#main-canvas svg').call(zoom).call(zoom.event)
@@ -83,7 +86,8 @@ class Editor extends Controller
 			$scope.resetZoom = () ->
 				translateVar = [0,0]
 				scaleVar = 1
-				svg.selectAll('g').attr("transform", "translate(" + translateVar + ")" + " scale(" + scaleVar + ")")
+				svg.call(zoom.translate([0, 0]).scale(1).event)
+				#svg.selectAll('g').attr("transform", "translate(" + translateVar + ")" + " scale(" + scaleVar + ")")
 				dragLine.attr("transform", "translate(" + translateVar + ")" + " scale(" + scaleVar + ")")
 				
 			
