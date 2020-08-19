@@ -148,6 +148,8 @@ class @ExaminePn2 extends @Analyzer
 		
 	
 	isStronglyConnected: (net) ->
+		if net.nodes.length is 0
+			return true
 		visited = {}
 		
 		#random starting point
@@ -190,22 +192,22 @@ class @ExaminePn2 extends @Analyzer
 			
 	
 	#check recursivly if there is a directed path from n1 to n2
-	pathExists: (net, n1, n2, ni = false) ->
-		if ni is n1 #looped back on first place
-			return false
-			
-		if n1 is n2
-			return true
+	pathExists: (net, a, b) ->
+		visited = {}
+		for n in net.nodes
+			visited[n.id] = false
+		queue = [a]
+		visited[a.id] = true
 		
-		if not ni then ni = n1
-		
-		post = net.getPostset(ni)
-		if n2 in post
-			return true
-		
-		for n in post
-			return true if @pathExists(net, n1, n2, n)
+		while queue.length > 0
+			s = queue.pop()
+			for n in net.getPostset(s)
+				return true if n.id is b.id
+				if not visited[n.id]
+					visited[n.id] = true
+					queue.push(n)
 		return false
+
 		
 	isUnmarked: (net) ->
 		return false for p in net.nodes when (p.type is "place" and p.inSelection and p.tokens > 0)
@@ -228,6 +230,7 @@ class @ExaminePn2 extends @Analyzer
 		tests.push {name: "NP-Simple-Side-Cond", result: @isNonPureSimpleSideCondition(net)}
 		tests.push {name: "Restricted-FC", result: @isRestrictedFC(net)}
 		tests.push {name: "Strongly-Connected", result: @isStronglyConnected(net)}
+		tests.push {name: "AMG", result: (new AmgHelper()).isAMG(net)}
 		return tests
 		
 	

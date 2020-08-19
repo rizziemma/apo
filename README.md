@@ -1,12 +1,14 @@
 # APO – APT Online [![Build Status](https://travis-ci.org/stromhalm/apo.svg)](https://travis-ci.org/stromhalm/apo)
 <img src="src/images/apo-logo.png" width="250"/>
 
-APO is a web interface for [APT](http://github.com/cvo-theory/apt), a powerful software for Petri net analysis and synthesis developed at the Carl von Ossietzky University in Oldenburg, Germany. Visit [apo.adrian-jagusch.de](http://apo.adrian-jagusch.de) in your browser to try it out!
+The first version of APO is a web interface for [APT](http://github.com/cvo-theory/apt), a powerful software for Petri net analysis and synthesis developed at the Carl von Ossietzky University in Oldenburg, Germany. Visit [apo.adrian-jagusch.de](http://apo.adrian-jagusch.de) in your browser to try it out!
+
+This version contains new features developped by Emma Rizzi at the LAAS-CNRS, France as part of a 2 months internship (2020) during her 4th year at INSA Toulouse, France.
 
 ## Quickstart
 APO currently supports two types of nets: **[Petri nets](https://en.wikipedia.org/wiki/Petri_net)** (PN) and **[(labeled) transition systems](https://en.wikipedia.org/wiki/Transition_system)** (LTS). At your first visit a sample Petri net is created for you. Use the tools in the toolbar to create places and transitions and combine them with the **Arrows** tool.
 
-Then let APO calculate the properties of your net by using the Petri net analyzer in the menu bar! Is your net safe or bounded? What about its reversibility?
+Then let APO calculate the properties of your net by using the Petri net analyzer in the menu bar! Is your net safe or bounded? What about its reversibility? You can also use the analysis menu to open a new menu and search properties amongst subnets.
 
 ### Short guide for using APO
 Now let's use APO to minimize a Petri net! First we create a net for mutual exclusion which is an often used example for the parallel features of Petri nets. See the first image below for what such a net could look like. You may use the **Tokens** tool to fire transitions and elucidate the net's behavior.
