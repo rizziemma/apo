@@ -1,0 +1,64 @@
+Add analyzer for petri nets, runs client side to determine properties and classes.
++ examinePn2.coffee, petriNet.coffee
+
+Removed weights display in case of readarcs 1|1.
++ pnEdge.coffee
+
+Added a new class of nets : PropertiesPetriNet
+Added a new tool for PPN : InfoTool, to display informations when a node is clicked. Informations are loaded from src/resources/properties_ref.json
++ propertiesPetriNet.coffee, infoTool.coffee, topbar.coffee, about.html
+
+Added a new class of analyzer : PropertiesNetAnalyzer to compute the tests in a petri net. Uses the new class PropertiesPetriNet. Net structure loaded from src/resources/properties_ref.json, tokens deduces from results of ExaminePn2.
++ propertiesAnalyzer.coffee, petriNet.coffee converter.coffee, sidenav.html, dialog.html
+
+Added src/resources to watch for reload on change
++ Gruntfile.coffee
+
+Added types on left and right arcs of edges for inhibitor arcs in petri nets. Can not be edited yet, only created from imported nets (expected flow format : {I*[weight*]place, [weight*]place,...}
+Diplay empty and plain circles.
++ egde.coffee, petriNet.coffee, editor.coffee, converter.coffee, index.html, editor-elements.less
+
+New Zooming Tool for every nets : when selected allows to move the whole net and zoom in and out. Added a 'reset zoom' button to reset scale and position.
++ zoomTool.coffee, petriNet.coffee, propertiesPetriNet.coffee, transitionSystem.coffee, editor.coffee 
+
+Change token display from "1" to "●" when only one token is present.
++ place.coffee
+
+Petri Nets and Properties Petri Nets can now contain shared place : same label with different IDs and shared token content. Can be created from the interface when multiple places share the same label, or from imported apt files.
+Format : 
+places : label[*id1,id2...]
+and transitions refere to id or labels
++ tokenTool.coffee, labelPnTool.coffee, place.coffee, net.coffee, petriNet.coffee, converter.coffee
+
+Nets with shared place are transformed to merge shared place before analysis
++ coverabilityAnalyzer.coffee, examinePn.coffee, examinePn2.coffee, net.coffee, petriNet.coffee, place.coffee
+
+Fixed Properties Petri Nets nodes for enhanced display. Coordinates stored as ratios for window width and height in resources/coordinates.json
++ converter.coffee, net.coffee, propertiesAnalysis.coffee, coordinates.json
+
+Added file format option for import/export net
++ menubar.coffee, converter.coffee, dialog.html, menubar.html
+
+Added new Select Tool to select nodes and extract induced subnets for petri nets.
++ selectTool.coffee, net.coffee, petriNet.coffee, node.coffee, edge.coffee, editor.coffee, editor.html, editor-elements.less
+
+Changed edges to bezier curves. Edit control points by selecting an edge with the Fix Nodes tool.(MoveTool)
++ moveTool.coffee, net.coffee, controlPoint.coffee, edge.coffee, editor.coffee, editor-elements.less
+Export and Import to ND curved arcs
++ converter.coffee
+
+Select Tool now can launch analysis on the subnet selected.
++ ExaminePn2.coffee, ExamineSubPn.coffee, editor.html, editor.coffee, selectTool.coffee
+
+Analyzers menus to display info on nets during analysis. 
+Siphon Analyzer finds all, min or max siphons in the net, with different algorithms. Form to choose the number of siphons to compute when using bruteforce method, run to start, next to search the next siphons. Colors the selected siphon on the net. Button to download the list.
++ analysisbar.coffee, anaysisMenu.coffee, analyzeSiphons.coffee, net.coffee, petriNet.coffee, editor.coffee, analysisbar.html, menubar.html, editor.html, editor-elements.less, layout.less
+
+Notes for petri nets. Note tool to create notes. Use label tool to change note content. Support import and export to nd format.
++ note.coffe, noteTool.coffee, converter.coffee, deleteTool.coffee, dialog.html, editor-elements.less, editor.coffee, labelPnTool.coffee, moveTool.coffee, net.coffee, petriNet.coffee
+
+New analyer menu. Subnets Analyzer find and compute all subnets of the current net with selected properties. Uses bruteforce algorithm, with all/min/max and number of subnets to search, or search through a uploaded list of subsets (containing, places, transitions or both).
++ layout.less, editor-elements.less, analysisbar.html, analyseSubnets.coffee, analysisbar.coffee
+
+AMG Helper added to detect AMG nets. Used in examinePn2.
++ amgHelper.coffee, examinePn2.coffee
